@@ -2,6 +2,7 @@
 #TODO: Add kernel scale into struct
 
 abstract type Kernel end
+#TODO: Add "Support" pair to Kernel? For easily checking if a value is in the support?
 
 # Epaneknikov
 struct Epaneknikov <: Kernel

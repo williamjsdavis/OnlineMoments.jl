@@ -174,3 +174,67 @@ M1_KE_ref_A2, M2_KE_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, 
         @test all(M2_K_ref_A .≈ M2_ref_C)
     end
 end
+
+## Online Kernel Based Regression, 1D (online methods)
+
+@testset "OKBR (single)" begin
+    X_sample = deepcopy(X_small)
+    X_stream() = popfirst!(X_sample)
+
+    hinv = inv(h)
+    kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
+
+    kbr_single = OKBR_single(x_centers, kernel_scaled)
+    @testset "Structs" begin
+        @test kbr_single.x_eval_points == x_centers
+        @test size(kbr_single.N) == (N_x,)
+        @test size(kbr_single.M1) == (N_x,)
+        @test size(kbr_single.M2) == (N_x,)
+        @test size(kbr_single.mem) == ()
+    end
+
+    for _ in 1:length(X_sample)
+        add_data(kbr_single, X_stream())
+    end
+    @testset "Moments" begin
+        # This streaming algorithm and algorithm A should be almost the same
+        @test all(kbr_single.M1 .≈ M1_K_ref_A[1,:])
+        @test all(kbr_single.M2 .≈ M2_K_ref_A[1,:])
+
+    end
+end
+
+## Comparing online algorithms
+
+@testset "Comparing online algorithms" begin
+    X_sample = deepcopy(X_small)
+    X_stream() = popfirst!(X_sample)
+
+    hinv = inv(h)
+    kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
+
+    hbr_single = OHBR_single(x_edges)
+    kbr_single = OKBR_single(x_centers, kernel_scaled)
+
+    hbr_multiple = OHBR_multiple(x_edges, N_tau)
+
+    for _ in 1:length(X_sample)
+        X_data = X_stream()
+        add_data(hbr_single, X_data)
+        add_data(kbr_single, X_data)
+        add_data(hbr_multiple, X_data)
+    end
+    @testset "Moments" begin
+        #
+        @test all(hbr_single.M1 .≈ kbr_single.M1)
+        @test all(hbr_single.M2 .≈ kbr_single.M2)
+
+        #
+        @test all(hbr_single.M1 .== hbr_multiple.M1[1,:])
+        @test all(hbr_single.M2 .== hbr_multiple.M2[1,:])
+
+        #
+        @test all(kbr_single.M1 .≈ hbr_multiple.M1[1,:])
+        @test all(kbr_single.M2 .≈ hbr_multiple.M2[1,:])
+    end
+end

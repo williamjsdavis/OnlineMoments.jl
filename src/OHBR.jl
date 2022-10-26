@@ -38,6 +38,7 @@ function add_data(HBR::OHBR_single, X_new)
     end
     HBR.mem = X_new
 end
+#TODO: Make this return nothing and be consistant
 
 ## Multi step algorithm, 1D
 

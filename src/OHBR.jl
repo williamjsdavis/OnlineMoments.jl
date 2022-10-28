@@ -67,6 +67,8 @@ function OHBR_multiple(x_range::LinRange, τ_len::Integer)
         zeros(Int, τ_len)
     )
 end
+OHBR_multiple(x_range::LinRange, τ_array::AbstractArray) = 
+    OHBR_multiple(x_range, length(τ_array))
 function add_data!(ohbr::OHBR_multiple, X_right)
     for (i_tau, j_bin) in enumerate(ohbr.bin_mem) if j_bin != 0
         X_left = ohbr.mem[i_tau]

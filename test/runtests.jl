@@ -93,7 +93,7 @@ end
 @testset "OHBR (multiple)" begin
     X_stream = stream_data(X_small)
 
-    hbr_multiple = OHBR_multiple(x_edges, N_tau)
+    hbr_multiple = OHBR_multiple(x_edges, tau_i_range)
     @testset "Structs" begin
         @test hbr_multiple.edges == x_edges
         @test size(hbr_multiple.N) == (N_tau, N_x)

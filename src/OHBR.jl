@@ -51,6 +51,7 @@ mutable struct OHBR_multiple
     bin_mem::Array{Int64,1}
 end
 function OHBR_multiple(x_range::LinRange, τ_len::Integer)
+    #TODO: make τ_len consistent with length or array
     Nx = length(x_range) - 1
     mem = zeros(Float64, τ_len)
     mem .= NaN
@@ -63,28 +64,24 @@ function OHBR_multiple(x_range::LinRange, τ_len::Integer)
         zeros(Int, τ_len)
     )
 end
-function add_data(HBR::OHBR_multiple, x_data)
-    #println(' ')
-    #println(x_data)
-    for (i_tau, i_bin) in enumerate(HBR.bin_mem) if i_bin != 0
-        Δx = x_data - HBR.mem[i_tau]
-        #println((i_tau,HBR.mem[i_tau]))
-        mem_tmp = HBR.mem[i_tau]
-        HBR.mem[i_tau] = HBR.M1[i_tau,i_bin] # Old mean
-        setindex!(HBR.N, HBR.N[i_tau,i_bin] + 1, i_tau, i_bin)
-        #println((HBR.N, (i_tau,i_bin), HBR.N[i_tau,i_bin]))
+function add_data(OHBR::OHBR_multiple, x_data)
+    for (i_tau, i_bin) in enumerate(OHBR.bin_mem) if i_bin != 0
+        Δx = x_data - OHBR.mem[i_tau]
+        mem_tmp = OHBR.mem[i_tau]
+        OHBR.mem[i_tau] = OHBR.M1[i_tau,i_bin] # Old mean
+        setindex!(OHBR.N, OHBR.N[i_tau,i_bin] + 1, i_tau, i_bin)
         setindex!(
-            HBR.M1,
-            update_mean!(HBR.M1[i_tau,i_bin], Δx, HBR.N[i_tau,i_bin]),
+            OHBR.M1,
+            update_mean!(OHBR.M1[i_tau,i_bin], Δx, OHBR.N[i_tau,i_bin]),
             i_tau, i_bin
         )
         setindex!(
-            HBR.M2,
-            update_var!(HBR.M2[i_tau,i_bin], HBR.M1[i_tau,i_bin], HBR.mem[i_tau], Δx, HBR.N[i_tau,i_bin]),
+            OHBR.M2,
+            update_var!(OHBR.M2[i_tau,i_bin], OHBR.M1[i_tau,i_bin], OHBR.mem[i_tau], Δx, OHBR.N[i_tau,i_bin]),
             i_tau, i_bin
         )
-        HBR.mem[i_tau] = mem_tmp
+        OHBR.mem[i_tau] = mem_tmp
     end end
-    update_mem!(HBR.mem, x_data)
-    update_mem!(HBR.bin_mem, get_bin(HBR.edges, x_data))
+    update_mem!(OHBR.mem, x_data)
+    update_mem!(OHBR.bin_mem, get_bin(OHBR.edges, x_data))
 end

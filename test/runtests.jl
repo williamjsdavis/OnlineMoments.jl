@@ -5,7 +5,7 @@ include("./load_test_data.jl")
 
 # Test settings
 const tau_i_range = 1:1:6
-const x_edges = LinRange(-0.0,0.4,5)
+const x_edges = LinRange(0.0,0.4,5)
 
 # Load test data
 const X_small = load_small_data()
@@ -100,7 +100,7 @@ end
         @test size(hbr_multiple.N) == (N_tau, N_x)
         @test size(hbr_multiple.M1) == (N_tau, N_x)
         @test size(hbr_multiple.M2) == (N_tau, N_x)
-        @test size(hbr_multiple.mem) == (N_tau, )
+        @test size(hbr_multiple.mem) == (N_tau,)
     end
 
     for _ in 1:length(X_sample)
@@ -201,6 +201,36 @@ end
         @test all(kbr_single.M1 .≈ M1_K_ref_A[1,:])
         @test all(kbr_single.M2 .≈ M2_K_ref_A[1,:])
 
+    end
+end
+
+@testset "OKBR (multiple)" begin
+    X_sample = deepcopy(X_small)
+    X_stream() = popfirst!(X_sample)
+
+    hinv = inv(h)
+    kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
+
+    kbr_multiple = OKBR_multiple(x_centers, N_tau,  kernel_scaled)
+    @testset "Structs" begin
+        @test kbr_multiple.x_eval_points == x_centers
+        @test size(kbr_multiple.w) == (N_tau, N_x)
+        @test size(kbr_multiple.M1) == (N_tau, N_x)
+        @test size(kbr_multiple.M2) == (N_tau, N_x)
+        @test size(kbr_multiple.mem) == (N_tau,)
+    end
+
+    for _ in 1:length(X_sample)
+        add_data(kbr_multiple, X_stream())
+    end
+    @testset "Moments" begin
+        # Consistancy with single step algorithm (move these to next section)
+        #@test all(kbr_multiple.M1[1,:] .== kbr_single.M1)
+        #@test all(kbr_multiple.M2[1,:] .== kbr_single.M2)
+        
+        # This streaming algorithm and algorithm A should be almost the same
+        @test all(kbr_multiple.M1 .≈ M1_K_ref_A)
+        @test all(kbr_multiple.M2 .≈ M2_K_ref_A)
     end
 end
 

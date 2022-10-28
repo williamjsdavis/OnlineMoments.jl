@@ -9,7 +9,7 @@ export KBR_moments_A, KBR_moments_A2
 export HBR_moments_A2 # Remove this
 
 export OHBR_single, OHBR_multiple
-export OKBR_single
+export OKBR_single, OKBR_multiple
 
 export add_data
 

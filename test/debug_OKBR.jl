@@ -98,7 +98,7 @@ X_data = X_stream()
 add_data(hbr_single, X_data)
 myadd_data(kbr_single, X_data)
 
-### Test N
+## Test N
 
 N = 7
 
@@ -145,3 +145,81 @@ display(M1_K_ref_A[1,:] .- kbr_single.M1)
 
 display(M2_K_ref_A[1,:] .- hbr_single.M2)
 display(M2_K_ref_A[1,:] .- kbr_single.M2)
+
+## Testing multi OKBR
+
+function myadd_datam(OKBR, x_data)
+    #println(" ")
+    #println(x_data)
+    for (i_tau, x_left) in enumerate(OKBR.mem)
+        if !isnan(x_left)
+            ΔX = x_data - x_left
+            #println((i_tau,HBR.mem[i_tau]))
+            for (j_ind,j_xeval) in enumerate(OKBR.x_eval_points)
+                K_weight = OKBR.kernel(j_xeval - x_left)
+                if K_weight > 0.0
+                    mem_tmp = OKBR.mem[i_tau]
+                    OKBR.mem[i_tau] = OKBR.w[i_tau,j_ind] # Old weight
+                    setindex!(OKBR.w, OKBR.w[i_tau,j_ind] + K_weight, i_tau, j_ind)
+                    tmp = OKBR.M1[i_tau, j_ind]
+                    setindex!(
+                        OKBR.M1,
+                        OnlineMoments.update_wmean(OKBR.M1[i_tau, j_ind], OKBR.mem[i_tau], ΔX, K_weight),
+                        i_tau, j_ind
+                    )
+                    setindex!(
+                        OKBR.M2,
+                        OnlineMoments.update_wvar(OKBR.M2[i_tau, j_ind], tmp, OKBR.mem[i_tau], ΔX, OKBR.M1[i_tau, j_ind], K_weight),
+                        i_tau, j_ind
+                    )
+                    OKBR.mem[i_tau] = mem_tmp
+                end
+            end
+        end
+    end
+    OnlineMoments.update_mem!(OKBR.mem, x_data)
+end
+
+kbr_multiple = OKBR_multiple(x_centers, N_tau, kernel_scaled)
+
+X_sample = deepcopy(X_small)
+X_stream() = popfirst!(X_sample)
+
+X_data = X_stream()
+myadd_datam(kbr_multiple, X_data)
+X_data = X_stream()
+myadd_datam(kbr_multiple, X_data)
+
+## Testing again
+
+hbr_multiple = OHBR_multiple(x_edges, N_tau)
+kbr_multiple = OKBR_multiple(x_centers, N_tau, kernel_scaled)
+
+X_sample = deepcopy(X_small)
+X_stream() = popfirst!(X_sample)
+
+N = 100
+M1_K_ref_A, M2_K_ref_A = KBR_moments_A(X_small[1:N], tau_i_range, x_centers, h, kernel)
+for _ in 1:N
+    X_data = X_stream()
+    add_data(hbr_multiple, X_data)
+    myadd_datam(kbr_multiple, X_data)
+end
+
+println("M1 full")
+display(M1_K_ref_A)
+display(hbr_multiple.M1)
+display(kbr_multiple.M1)
+display(M1_K_ref_A .- kbr_multiple.M1)
+
+println("M2 full")
+display(M2_K_ref_A)
+display(hbr_multiple.M2)
+display(kbr_multiple.M2)
+display(M2_K_ref_A .- kbr_multiple.M2)
+
+## Testing separately
+
+X_data = X_stream()
+add_data(hbr_multiple, X_data)
+myadd_datam(kbr_multiple, X_data)

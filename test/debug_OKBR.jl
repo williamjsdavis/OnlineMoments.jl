@@ -36,7 +36,7 @@ display(M1_K_ref_A[1,:])
 ## OKBR
 update_wmean(x_bar, w, x_new, w_new) = x_bar + (x_new - x_bar)*(w_new/(w + w_new))
 update_wvar(s2, x_bar, w, x_new, x_bar_new, w_new) = (s2*w + w_new*(x_new - x_bar)*(x_new - x_bar_new))/(w + w_new)
-function myadd_data(KBR, X_new)
+function myadd_data!(KBR, X_new)
     if !isnan(KBR.mem)
         ΔX = X_new - KBR.mem
         for (j_ind,j_xeval) in enumerate(KBR.x_eval_points)
@@ -46,12 +46,12 @@ function myadd_data(KBR, X_new)
                 setindex!(KBR.N, KBR.N[j_ind] + K_weight, j_ind)
                 setindex!(
                     KBR.M1,
-                    OnlineMoments.update_mean!(KBR.M1[j_ind], K_weight * ΔX, KBR.N[j_ind]),
+                    OnlineMoments.update_mean(KBR.M1[j_ind], K_weight * ΔX, KBR.N[j_ind]),
                     j_ind
                 )
                 setindex!(
                     KBR.M2,
-                    OnlineMoments.update_var!(KBR.M2[j_ind], KBR.M1[j_ind], KBR.mem, K_weight * ΔX*ΔX, KBR.N[j_ind]),
+                    OnlineMoments.update_var(KBR.M2[j_ind], KBR.M1[j_ind], KBR.mem, K_weight * ΔX*ΔX, KBR.N[j_ind]),
                     j_ind
                 )
                 #N[i_ind,j_ind] += K_weight
@@ -62,7 +62,7 @@ function myadd_data(KBR, X_new)
     end
     KBR.mem = X_new
 end
-function myadd_dataw(KBR, X_new)
+function myadd_dataw!(KBR, X_new)
     if !isnan(KBR.mem)
         ΔX = X_new - KBR.mem
         for (j_ind,j_xeval) in enumerate(KBR.x_eval_points)
@@ -95,8 +95,8 @@ kbr_single = OKBR_single(x_centers, kernel_scaled)
 
 X_data = X_stream()
 
-add_data(hbr_single, X_data)
-myadd_data(kbr_single, X_data)
+add_data!(hbr_single, X_data)
+myadd_data!(kbr_single, X_data)
 
 ## Test N
 
@@ -110,9 +110,9 @@ kbr_single = OKBR_single(x_centers, kernel_scaled)
 
 M1_K_ref_A, M2_K_ref_A = KBR_moments_A(X_small[1:N], tau_i_range, x_centers, h, kernel)
 for _ in 1:N
-    X_data = X_stream()
-    add_data(hbr_single, X_data)
-    myadd_dataw(kbr_single, X_data)
+    local X_data = X_stream()
+    add_data!(hbr_single, X_data)
+    myadd_dataw!(kbr_single, X_data)
 end
 
 display(M1_K_ref_A[1,:])
@@ -135,9 +135,9 @@ kbr_single = OKBR_single(x_centers, kernel_scaled)
 
 M1_K_ref_A, M2_K_ref_A = KBR_moments_A(X_small[1:N], tau_i_range, x_centers, h, kernel)
 for _ in 1:N
-    X_data = X_stream()
-    add_data(hbr_single, X_data)
-    myadd_dataw(kbr_single, X_data)
+    local X_data = X_stream()
+    add_data!(hbr_single, X_data)
+    myadd_dataw!(kbr_single, X_data)
 end
 
 display(M1_K_ref_A[1,:] .- hbr_single.M1)
@@ -148,7 +148,7 @@ display(M2_K_ref_A[1,:] .- kbr_single.M2)
 
 ## Testing multi OKBR
 
-function myadd_datam(OKBR, x_data)
+function myadd_datam!(OKBR, x_data)
     #println(" ")
     #println(x_data)
     for (i_tau, x_left) in enumerate(OKBR.mem)
@@ -185,10 +185,10 @@ kbr_multiple = OKBR_multiple(x_centers, N_tau, kernel_scaled)
 X_sample = deepcopy(X_small)
 X_stream() = popfirst!(X_sample)
 
-X_data = X_stream()
-myadd_datam(kbr_multiple, X_data)
-X_data = X_stream()
-myadd_datam(kbr_multiple, X_data)
+X_data_sample = X_stream()
+myadd_datam!(kbr_multiple, X_data_sample)
+X_data_sample = X_stream()
+myadd_datam!(kbr_multiple, X_data_sample)
 
 ## Testing again
 
@@ -201,9 +201,9 @@ X_stream() = popfirst!(X_sample)
 N = 100
 M1_K_ref_A, M2_K_ref_A = KBR_moments_A(X_small[1:N], tau_i_range, x_centers, h, kernel)
 for _ in 1:N
-    X_data = X_stream()
-    add_data(hbr_multiple, X_data)
-    myadd_datam(kbr_multiple, X_data)
+    local X_data = X_stream()
+    add_data!(hbr_multiple, X_data)
+    myadd_datam!(kbr_multiple, X_data)
 end
 
 println("M1 full")
@@ -220,6 +220,9 @@ display(M2_K_ref_A .- kbr_multiple.M2)
 
 ## Testing separately
 
-X_data = X_stream()
-add_data(hbr_multiple, X_data)
-myadd_datam(kbr_multiple, X_data)
+X_sample = deepcopy(X_small)
+X_stream() = popfirst!(X_sample)
+
+X_data_sample = X_stream()
+add_data!(hbr_multiple, X_data_sample)
+myadd_datam!(kbr_multiple, X_data_sample)

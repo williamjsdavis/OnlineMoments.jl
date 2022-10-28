@@ -11,11 +11,12 @@ export HBR_moments_A2 # Remove this
 export OHBR_single, OHBR_multiple
 export OKBR_single, OKBR_multiple
 
-export add_data
+export add_data!
 
 greet() = print("Hello World!")
 
 include("utils.jl")
+include("statistics.jl")
 include("kernels.jl")
 include("HBR.jl")
 include("KBR.jl")

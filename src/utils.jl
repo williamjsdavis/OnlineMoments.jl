@@ -1,8 +1,5 @@
 # Utility functions
 
-# Statistics
-mean(x) = sum(x)/length(x)
-
 # Binning (for linear ranges)
 in_range(r::LinRange,x::Real) = (x >= r.start) && (x <= r.stop)
 find_bin(r::LinRange,x::Real) = floor(Int, ((x-r.start)/(r.stop-r.start)*r.lendiv + 1))

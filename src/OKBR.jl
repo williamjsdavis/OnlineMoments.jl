@@ -1,13 +1,14 @@
 # Online Kernel Based Regression (OKBR)
 
 ## Updating statistics
+#=
 function update_wmean(x_bar, w, x_new, w_new)
     return x_bar + (x_new - x_bar)*(w_new/(w + w_new))
 end
 function update_wvar(s2, x_bar, w, x_new, x_bar_new, w_new)
     return (s2*w + w_new*(x_new - x_bar)*(x_new - x_bar_new))/(w + w_new)
 end
-
+=#
 ## Single step algorithm, 1D (for testing)
 
 mutable struct OKBR_single
@@ -29,7 +30,7 @@ function OKBR_single(x_eval_points::LinRange, kernel)
         kernel
     )
 end
-function add_data(OKBR::OKBR_single, X_new)
+function add_data!(OKBR::OKBR_single, X_new)
     if !isnan(OKBR.mem)
         ΔX = X_new - OKBR.mem
         for (j_ind,j_xeval) in enumerate(OKBR.x_eval_points)
@@ -52,6 +53,7 @@ function add_data(OKBR::OKBR_single, X_new)
         end
     end
     OKBR.mem = X_new
+    return nothing
 end
 
 ## Multi step algorithm, 1D
@@ -79,7 +81,7 @@ function OKBR_multiple(x_eval_points::LinRange, τ_len::Integer, kernel)
         kernel
     )
 end
-function add_data(OKBR::OKBR_multiple, x_data)
+function add_data!(OKBR::OKBR_multiple, x_data)
     for (i_tau, x_left) in enumerate(OKBR.mem)
         if !isnan(x_left)
             ΔX = x_data - x_left
@@ -106,4 +108,5 @@ function add_data(OKBR::OKBR_multiple, x_data)
         end
     end
     update_mem!(OKBR.mem, x_data)
+    return nothing
 end

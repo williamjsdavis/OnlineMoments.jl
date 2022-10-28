@@ -1,7 +1,7 @@
 # Histogram Based Regression (HBR)
 
 # Algorithm A: loop over moment elements
-function HBR_moments_A(X,tau_vector,edge_vector)
+function HBR_moments_A(X, tau_vector, edge_vector)
     nτ = length(tau_vector)
     nx = length(edge_vector) - 1
     M1 = zeros(nτ,nx)
@@ -74,8 +74,6 @@ function get_moments(X, iX, tau)
 end
 
 # Algorithm C: Loop over X elements
-update_mean!(x_bar, x_new, n) = x_bar + (x_new - x_bar)/n
-update_var!(s2, x_bar, x_bar_old, x_new, n) = s2 + ((x_new - x_bar)*(x_new - x_bar_old) - s2)/n
 function HBR_moments_C(X, tau_vector, edge_vector)
     nτ = length(tau_vector)
     nx = length(edge_vector) - 1
@@ -96,12 +94,12 @@ function HBR_moments_C(X, tau_vector, edge_vector)
                     setindex!(N, N[j,k] + 1, j, k)
                     setindex!(
                         M1,
-                        update_mean!(M1[j, k], inc, N[j, k]),
+                        update_mean(M1[j, k], inc, N[j, k]),
                         j, k
                     )
                     setindex!(
                         M2,
-                        update_var!(M2[j, k], M1[j, k], mem, inc, N[j, k]),
+                        update_var(M2[j, k], M1[j, k], mem, inc, N[j, k]),
                         j, k
                     )
                 end
@@ -134,12 +132,12 @@ function HBR_moments_C2(X, tau_vector, edge_vector)
                 setindex!(N, N[j, bin] + 1, j, bin)
                 setindex!(
                     M1,
-                    update_mean!(M1[j, bin], inc, N[j, bin]),
+                    update_mean(M1[j, bin], inc, N[j, bin]),
                     j, bin
                 )
                 setindex!(
                     M2,
-                    update_var!(M2[j, bin], M1[j, bin], mem, inc, N[j, bin]),
+                    update_var(M2[j, bin], M1[j, bin], mem, inc, N[j, bin]),
                     j, bin
                 )
             end

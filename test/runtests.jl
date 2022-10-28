@@ -80,7 +80,7 @@ end
     end
 
     for _ in 1:length(X_sample)
-        add_data(hbr_single, X_stream())
+        add_data!(hbr_single, X_stream())
     end
     @testset "Moments" begin
         # This streaming algorithm should be identical to algorithm C
@@ -104,7 +104,7 @@ end
     end
 
     for _ in 1:length(X_sample)
-        add_data(hbr_multiple, X_stream())
+        add_data!(hbr_multiple, X_stream())
     end
     @testset "Moments" begin
         # This streaming algorithm should be identical to algorithm C
@@ -194,7 +194,7 @@ end
     end
 
     for _ in 1:length(X_sample)
-        add_data(kbr_single, X_stream())
+        add_data!(kbr_single, X_stream())
     end
     @testset "Moments" begin
         # This streaming algorithm and algorithm A should be almost the same
@@ -221,13 +221,13 @@ end
     end
 
     for _ in 1:length(X_sample)
-        add_data(kbr_multiple, X_stream())
+        add_data!(kbr_multiple, X_stream())
     end
     @testset "Moments" begin
         # Consistancy with single step algorithm (move these to next section)
         #@test all(kbr_multiple.M1[1,:] .== kbr_single.M1)
         #@test all(kbr_multiple.M2[1,:] .== kbr_single.M2)
-        
+
         # This streaming algorithm and algorithm A should be almost the same
         @test all(kbr_multiple.M1 .≈ M1_K_ref_A)
         @test all(kbr_multiple.M2 .≈ M2_K_ref_A)
@@ -250,9 +250,9 @@ end
 
     for _ in 1:length(X_sample)
         X_data = X_stream()
-        add_data(hbr_single, X_data)
-        add_data(kbr_single, X_data)
-        add_data(hbr_multiple, X_data)
+        add_data!(hbr_single, X_data)
+        add_data!(kbr_single, X_data)
+        add_data!(hbr_multiple, X_data)
     end
     @testset "Moments" begin
         #

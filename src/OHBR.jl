@@ -19,7 +19,7 @@ function OHBR_single(x_range::LinRange)
         NaN
     )
 end
-function add_data(HBR::OHBR_single, X_new)
+function add_data!(HBR::OHBR_single, X_new)
     if in_range(HBR.edges, HBR.mem)
         ΔX = X_new - HBR.mem
         i = find_bin(HBR.edges, HBR.mem)
@@ -27,16 +27,17 @@ function add_data(HBR::OHBR_single, X_new)
         setindex!(HBR.N, HBR.N[i] + 1, i)
         setindex!(
             HBR.M1,
-            update_mean!(HBR.M1[i], ΔX, HBR.N[i]),
+            update_mean(HBR.M1[i], ΔX, HBR.N[i]),
             i
         )
         setindex!(
             HBR.M2,
-            update_var!(HBR.M2[i], HBR.M1[i], HBR.mem, ΔX, HBR.N[i]),
+            update_var(HBR.M2[i], HBR.M1[i], HBR.mem, ΔX, HBR.N[i]),
             i
         )
     end
     HBR.mem = X_new
+    return nothing
 end
 #TODO: Make this return nothing and be consistant
 
@@ -64,7 +65,7 @@ function OHBR_multiple(x_range::LinRange, τ_len::Integer)
         zeros(Int, τ_len)
     )
 end
-function add_data(OHBR::OHBR_multiple, x_data)
+function add_data!(OHBR::OHBR_multiple, x_data)
     for (i_tau, i_bin) in enumerate(OHBR.bin_mem) if i_bin != 0
         Δx = x_data - OHBR.mem[i_tau]
         mem_tmp = OHBR.mem[i_tau]
@@ -72,16 +73,17 @@ function add_data(OHBR::OHBR_multiple, x_data)
         setindex!(OHBR.N, OHBR.N[i_tau,i_bin] + 1, i_tau, i_bin)
         setindex!(
             OHBR.M1,
-            update_mean!(OHBR.M1[i_tau,i_bin], Δx, OHBR.N[i_tau,i_bin]),
+            update_mean(OHBR.M1[i_tau,i_bin], Δx, OHBR.N[i_tau,i_bin]),
             i_tau, i_bin
         )
         setindex!(
             OHBR.M2,
-            update_var!(OHBR.M2[i_tau,i_bin], OHBR.M1[i_tau,i_bin], OHBR.mem[i_tau], Δx, OHBR.N[i_tau,i_bin]),
+            update_var(OHBR.M2[i_tau,i_bin], OHBR.M1[i_tau,i_bin], OHBR.mem[i_tau], Δx, OHBR.N[i_tau,i_bin]),
             i_tau, i_bin
         )
         OHBR.mem[i_tau] = mem_tmp
     end end
     update_mem!(OHBR.mem, x_data)
     update_mem!(OHBR.bin_mem, get_bin(OHBR.edges, x_data))
+    return nothing
 end

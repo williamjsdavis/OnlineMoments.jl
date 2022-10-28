@@ -12,6 +12,7 @@ const x_edges = LinRange(0.0,0.4,5)
 
 # Load test data
 const X_small = load_small_data()
+const N_data = length(X_small)
 #X_small = X_small[1:10]
 
 # Derived test variables
@@ -80,7 +81,7 @@ end
         @test size(hbr_single.mem) == ()
     end
 
-    for _ in 1:length(X_sample)
+    for _ in 1:N_data
         add_data!(hbr_single, X_stream())
     end
     @testset "Moments" begin
@@ -103,7 +104,7 @@ end
         @test size(hbr_multiple.mem) == (N_tau,)
     end
 
-    for _ in 1:length(X_sample)
+    for _ in 1:N_data
         add_data!(hbr_multiple, X_stream())
     end
     @testset "Moments" begin
@@ -192,7 +193,7 @@ end
         @test size(kbr_single.mem) == ()
     end
 
-    for _ in 1:length(X_sample)
+    for _ in 1:N_data
         add_data!(kbr_single, X_stream())
     end
     @testset "Moments" begin
@@ -218,7 +219,7 @@ end
         @test size(kbr_multiple.mem) == (N_tau,)
     end
 
-    for _ in 1:length(X_sample)
+    for _ in 1:N_data
         add_data!(kbr_multiple, X_stream())
     end
     @testset "Moments" begin
@@ -245,7 +246,7 @@ end
 
     hbr_multiple = OHBR_multiple(x_edges, N_tau)
 
-    for _ in 1:length(X_sample)
+    for _ in 1:N_data
         X_data = X_stream()
         add_data!(hbr_single, X_data)
         add_data!(kbr_single, X_data)

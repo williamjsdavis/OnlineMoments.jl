@@ -1,6 +1,6 @@
 # Kernel Based Regression (KBR)
 
-function KBR_moments_A(X,tau_i_range,x_range,h,kernel::Kernel)
+function KBR_moments_A(X, tau_i_range, x_range, h, kernel::Kernel)
     n = length(X)
     nτ = length(tau_i_range)
     nx = length(x_range)
@@ -16,8 +16,8 @@ function KBR_moments_A(X,tau_i_range,x_range,h,kernel::Kernel)
             i_right = i_left + i_tau
             if i_right <= n
                 ΔX = X[i_right] - X_left
-                for (j_ind,j_xeval) in enumerate(x_range)
-                    K_weight = kernel_scaled(j_xeval - X_left)
+                for (j_ind,x_eval) in enumerate(x_range)
+                    K_weight = kernel_scaled(x_eval - X_left)
                     N[i_ind,j_ind] += K_weight
                     M1[i_ind,j_ind] += K_weight * ΔX
                     M2[i_ind,j_ind] += K_weight * ΔX*ΔX
@@ -34,7 +34,7 @@ function KBR_moments_A(X,tau_i_range,x_range,h,kernel::Kernel)
 
     return M1, M2
 end
-function KBR_moments_A2(X,tau_i_range,x_range,h,kernel)
+function KBR_moments_A2(X, tau_i_range, x_range, h, kernel)
     n = length(X)
     nτ = length(tau_i_range)
     nx = length(x_range)
@@ -46,8 +46,8 @@ function KBR_moments_A2(X,tau_i_range,x_range,h,kernel)
     kernel_scaled(x) = hinv*kernel(hinv*x)
 
     for (i_left, X_left) in enumerate(X[1:end-1])
-        for (j_ind,j_xeval) in enumerate(x_range)
-            K_weight = kernel_scaled(j_xeval - X_left)
+        for (j_ind,x_eval) in enumerate(x_range)
+            K_weight = kernel_scaled(x_eval - X_left)
             for (i_ind,i_tau) in enumerate(tau_i_range)
                 i_right = i_left + i_tau
                 if i_right <= n

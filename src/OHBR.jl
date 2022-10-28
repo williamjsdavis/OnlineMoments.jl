@@ -19,24 +19,25 @@ function OHBR_single(x_range::LinRange)
         NaN
     )
 end
-function add_data!(HBR::OHBR_single, X_new)
-    if in_range(HBR.edges, HBR.mem)
-        ΔX = X_new - HBR.mem
-        i = find_bin(HBR.edges, HBR.mem)
-        HBR.mem = HBR.M1[i]
-        setindex!(HBR.N, HBR.N[i] + 1, i)
+function add_data!(ohbr::OHBR_single, X_right)
+    X_left = ohbr.mem
+    if in_range(ohbr.edges, X_left)
+        ΔX = X_right - X_left
+        i = find_bin(ohbr.edges, X_left)
+        ohbr.mem = ohbr.M1[i]
+        setindex!(ohbr.N, ohbr.N[i] + 1, i)
         setindex!(
-            HBR.M1,
-            update_mean(HBR.M1[i], ΔX, HBR.N[i]),
+            ohbr.M1,
+            update_mean(ohbr.M1[i], ΔX, ohbr.N[i]),
             i
         )
         setindex!(
-            HBR.M2,
-            update_var(HBR.M2[i], HBR.M1[i], HBR.mem, ΔX, HBR.N[i]),
+            ohbr.M2,
+            update_var(ohbr.M2[i], ohbr.M1[i], ohbr.mem, ΔX, ohbr.N[i]),
             i
         )
     end
-    HBR.mem = X_new
+    ohbr.mem = X_right
     return nothing
 end
 #TODO: Make this return nothing and be consistant
@@ -65,25 +66,31 @@ function OHBR_multiple(x_range::LinRange, τ_len::Integer)
         zeros(Int, τ_len)
     )
 end
-function add_data!(OHBR::OHBR_multiple, x_data)
-    for (i_tau, i_bin) in enumerate(OHBR.bin_mem) if i_bin != 0
-        Δx = x_data - OHBR.mem[i_tau]
-        mem_tmp = OHBR.mem[i_tau]
-        OHBR.mem[i_tau] = OHBR.M1[i_tau,i_bin] # Old mean
-        setindex!(OHBR.N, OHBR.N[i_tau,i_bin] + 1, i_tau, i_bin)
+function add_data!(ohbr::OHBR_multiple, X_right)
+    for (i_tau, j_bin) in enumerate(ohbr.bin_mem) if j_bin != 0
+        X_left = ohbr.mem[i_tau]
+        ΔX = X_right - X_left
+        mem_tmp = X_left
+        ohbr.mem[i_tau] = ohbr.M1[i_tau,j_bin] # Old mean
+        setindex!(ohbr.N, ohbr.N[i_tau,j_bin] + 1, i_tau, j_bin)
         setindex!(
-            OHBR.M1,
-            update_mean(OHBR.M1[i_tau,i_bin], Δx, OHBR.N[i_tau,i_bin]),
-            i_tau, i_bin
+            ohbr.M1,
+            update_mean(ohbr.M1[i_tau,j_bin], ΔX, ohbr.N[i_tau,j_bin]),
+            i_tau, j_bin
         )
         setindex!(
-            OHBR.M2,
-            update_var(OHBR.M2[i_tau,i_bin], OHBR.M1[i_tau,i_bin], OHBR.mem[i_tau], Δx, OHBR.N[i_tau,i_bin]),
-            i_tau, i_bin
+            ohbr.M2,
+            update_var(
+                ohbr.M2[i_tau,j_bin],
+                ohbr.M1[i_tau,j_bin],
+                ohbr.mem[i_tau], ΔX,
+                ohbr.N[i_tau,j_bin]
+            ),
+            i_tau, j_bin
         )
-        OHBR.mem[i_tau] = mem_tmp
+        ohbr.mem[i_tau] = mem_tmp
     end end
-    update_mem!(OHBR.mem, x_data)
-    update_mem!(OHBR.bin_mem, get_bin(OHBR.edges, x_data))
+    update_mem!(ohbr.mem, X_right)
+    update_mem!(ohbr.bin_mem, get_bin(ohbr.edges, X_right))
     return nothing
 end

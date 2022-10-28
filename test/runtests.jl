@@ -187,7 +187,7 @@ end
     kbr_single = OKBR_single(x_centers, kernel_scaled)
     @testset "Structs" begin
         @test kbr_single.x_eval_points == x_centers
-        @test size(kbr_single.N) == (N_x,)
+        @test size(kbr_single.w) == (N_x,)
         @test size(kbr_single.M1) == (N_x,)
         @test size(kbr_single.M2) == (N_x,)
         @test size(kbr_single.mem) == ()

@@ -12,9 +12,9 @@ function HBR_moments_A(X, tau_vector, edge_vector)
     for (i,tau) in enumerate(tau_vector)
         for j in 1:edge_vector.lendiv
             iX = findall(bin_index[1:end-tau] .== j)
-            inc = X[iX .+ tau] .- X[iX]
-            M1[i,j] = mean(inc)
-            residuals = inc .- M1[i,j]
+            ΔX = X[iX .+ tau] .- X[iX]
+            M1[i,j] = mean(ΔX)
+            residuals = ΔX .- M1[i,j]
             M2[i,j] = mean(residuals.^2)
         end
     end
@@ -22,31 +22,31 @@ function HBR_moments_A(X, tau_vector, edge_vector)
 end
 
 # Algorithm A: loop over moment elements (no variance correction)
-function HBR_moments_A2(X,tau_vector,edge_vector)
+function HBR_moments_A2(X, tau_vector, edge_vector)
     nτ = length(tau_vector)
     nx = length(edge_vector) - 1
     M1 = zeros(nτ,nx)
     M2 = zeros(nτ,nx)
     bin_index = map(X) do y
-        in_range(edge_vector,y) ? find_bin(edge_vector,y) : 0
+        in_range(edge_vector, y) ? find_bin(edge_vector, y) : 0
     end
     for (i,tau) in enumerate(tau_vector)
         for j in 1:edge_vector.lendiv
             iX = findall(bin_index[1:end-tau] .== j)
-            inc = X[iX .+ tau] .- X[iX]
-            M1[i,j] = mean(inc)
-            M2[i,j] = mean(inc.^2)
+            ΔX = X[iX .+ tau] .- X[iX]
+            M1[i,j] = mean(ΔX)
+            M2[i,j] = mean(ΔX.^2)
         end
     end
     return M1, M2
 end
 
 # Algorithm B: map over X elements
-function HBR_moments_B(X::AbstractVector,tau_vector,edge_vector::LinRange)
-    ti_grid = make_grid(tau_vector,edge_vector)
+function HBR_moments_B(X::AbstractVector, tau_vector, edge_vector::LinRange)
+    ti_grid = make_grid(tau_vector, edge_vector)
 
     bin_index = map(X) do y
-        in_range(edge_vector,y) ? find_bin(edge_vector,y) : 0
+        in_range(edge_vector, y) ? find_bin(edge_vector, y) : 0
     end
 
     bin_groups = map(1:edge_vector.lendiv) do i
@@ -54,7 +54,7 @@ function HBR_moments_B(X::AbstractVector,tau_vector,edge_vector::LinRange)
     end
 
     M1M2 = map(ti_grid) do ti
-        get_moments(X,bin_groups[ti[2]],ti[1])
+        get_moments(X, bin_groups[ti[2]], ti[1])
     end
 
     M1 = broadcast(first,M1M2)
@@ -62,13 +62,13 @@ function HBR_moments_B(X::AbstractVector,tau_vector,edge_vector::LinRange)
 
     return M1, M2
 end
-function make_grid(tau_vector::AbstractVector,edge_vector::LinRange)
-    return broadcast((x,y)->(x,y),tau_vector,(1:edge_vector.lendiv)')
+function make_grid(tau_vector::AbstractVector, edge_vector::LinRange)
+    return broadcast((x,y)->(x,y), tau_vector, (1:edge_vector.lendiv)')
 end
 function get_moments(X, iX, tau)
-    inc = X[iX .+ tau] .- X[iX]
-    M1 = mean(inc)
-    residuals = inc .- M1
+    ΔX = X[iX .+ tau] .- X[iX]
+    M1 = mean(ΔX)
+    residuals = ΔX .- M1
     M2 = mean(residuals.^2)
     return M1, M2
 end
@@ -89,17 +89,17 @@ function HBR_moments_C(X, tau_vector, edge_vector)
             for (j,tau) in enumerate(tau_vector)
                 ii = i_left + j
                 if ii <= nX
-                    inc = X[ii] - X_left
+                    ΔX = X[ii] - X_left
                     mem = M1[j, k]
                     setindex!(N, N[j,k] + 1, j, k)
                     setindex!(
                         M1,
-                        update_mean(M1[j, k], inc, N[j, k]),
+                        update_mean(M1[j, k], ΔX, N[j, k]),
                         j, k
                     )
                     setindex!(
                         M2,
-                        update_var(M2[j, k], M1[j, k], mem, inc, N[j, k]),
+                        update_var(M2[j, k], M1[j, k], mem, ΔX, N[j, k]),
                         j, k
                     )
                 end
@@ -127,17 +127,17 @@ function HBR_moments_C2(X, tau_vector, edge_vector)
         for (i_left, X_left) in enumerate(X[1:end-j])
             bin = b[i_left]
             if bin != 0
-                inc = X[i_left+j] - X_left
+                ΔX = X[i_left+j] - X_left
                 mem = M1[j, bin]
                 setindex!(N, N[j, bin] + 1, j, bin)
                 setindex!(
                     M1,
-                    update_mean(M1[j, bin], inc, N[j, bin]),
+                    update_mean(M1[j, bin], ΔX, N[j, bin]),
                     j, bin
                 )
                 setindex!(
                     M2,
-                    update_var(M2[j, bin], M1[j, bin], mem, inc, N[j, bin]),
+                    update_var(M2[j, bin], M1[j, bin], mem, ΔX, N[j, bin]),
                     j, bin
                 )
             end

@@ -1,19 +1,10 @@
 # Online Kernel Based Regression (OKBR)
 
-## Updating statistics
-#=
-function update_wmean(x_bar, w, x_new, w_new)
-    return x_bar + (x_new - x_bar)*(w_new/(w + w_new))
-end
-function update_wvar(s2, x_bar, w, x_new, x_bar_new, w_new)
-    return (s2*w + w_new*(x_new - x_bar)*(x_new - x_bar_new))/(w + w_new)
-end
-=#
 ## Single step algorithm, 1D (for testing)
 
 mutable struct OKBR_single
     x_eval_points::LinRange{Float64}
-    N::Array{Float64,1} #NOTE: Channge N to w
+    w::Array{Float64,1}
     M1::Array{Float64,1}
     M2::Array{Float64,1}
     mem::Float64
@@ -30,29 +21,30 @@ function OKBR_single(x_eval_points::LinRange, kernel)
         kernel
     )
 end
-function add_data!(OKBR::OKBR_single, X_new)
-    if !isnan(OKBR.mem)
-        ΔX = X_new - OKBR.mem
-        for (j_ind,j_xeval) in enumerate(OKBR.x_eval_points)
-            K_weight = OKBR.kernel(j_xeval - OKBR.mem)
+function add_data!(okbr::OKBR_single, X_right)
+    X_left = okbr.mem
+    if !isnan(X_left)
+        ΔX = X_right - X_left
+        for (j_ind, x_eval) in enumerate(okbr.x_eval_points)
+            K_weight = okbr.kernel(x_eval - X_left)
             if K_weight > 0.0
-                OKBR.mem = OKBR.N[j_ind] # Old weight
-                setindex!(OKBR.N, OKBR.N[j_ind] + K_weight, j_ind)
-                tmp = OKBR.M1[j_ind]
+                okbr.mem = okbr.w[j_ind] # Old weight
+                setindex!(okbr.w, okbr.w[j_ind] + K_weight, j_ind)
+                tmp = okbr.M1[j_ind]
                 setindex!(
-                    OKBR.M1,
-                    update_wmean(OKBR.M1[j_ind], OKBR.mem, ΔX, K_weight),
+                    okbr.M1,
+                    update_wmean(okbr.M1[j_ind], okbr.mem, ΔX, K_weight),
                     j_ind
                 )
                 setindex!(
-                    OKBR.M2,
-                    update_wvar(OKBR.M2[j_ind], tmp, OKBR.mem, ΔX, OKBR.M1[j_ind], K_weight),
+                    okbr.M2,
+                    update_wvar(okbr.M2[j_ind], tmp, okbr.mem, ΔX, okbr.M1[j_ind], K_weight),
                     j_ind
                 )
             end
         end
     end
-    OKBR.mem = X_new
+    okbr.mem = X_right
     return nothing
 end
 
@@ -81,32 +73,32 @@ function OKBR_multiple(x_eval_points::LinRange, τ_len::Integer, kernel)
         kernel
     )
 end
-function add_data!(OKBR::OKBR_multiple, x_data)
-    for (i_tau, x_left) in enumerate(OKBR.mem)
-        if !isnan(x_left)
-            ΔX = x_data - x_left
-            for (j_ind,j_xeval) in enumerate(OKBR.x_eval_points)
-                K_weight = OKBR.kernel(j_xeval - x_left)
+function add_data!(okbr::OKBR_multiple, X_right)
+    for (i_tau, X_left) in enumerate(okbr.mem)
+        if !isnan(X_left)
+            ΔX = X_right - X_left
+            for (j_ind, x_eval) in enumerate(okbr.x_eval_points)
+                K_weight = okbr.kernel(x_eval - X_left)
                 if K_weight > 0.0
-                    mem_tmp = OKBR.mem[i_tau]
-                    OKBR.mem[i_tau] = OKBR.w[i_tau,j_ind] # Old weight
-                    setindex!(OKBR.w, OKBR.w[i_tau,j_ind] + K_weight, i_tau, j_ind)
-                    tmp = OKBR.M1[i_tau, j_ind]
+                    mem_tmp = X_left
+                    okbr.mem[i_tau] = okbr.w[i_tau,j_ind] # Old weight
+                    setindex!(okbr.w, okbr.w[i_tau,j_ind] + K_weight, i_tau, j_ind)
+                    tmp = okbr.M1[i_tau, j_ind]
                     setindex!(
-                        OKBR.M1,
-                        update_wmean(OKBR.M1[i_tau, j_ind], OKBR.mem[i_tau], ΔX, K_weight),
+                        okbr.M1,
+                        update_wmean(okbr.M1[i_tau, j_ind], okbr.mem[i_tau], ΔX, K_weight),
                         i_tau, j_ind
                     )
                     setindex!(
-                        OKBR.M2,
-                        update_wvar(OKBR.M2[i_tau, j_ind], tmp, OKBR.mem[i_tau], ΔX, OKBR.M1[i_tau, j_ind], K_weight),
+                        okbr.M2,
+                        update_wvar(okbr.M2[i_tau, j_ind], tmp, okbr.mem[i_tau], ΔX, okbr.M1[i_tau, j_ind], K_weight),
                         i_tau, j_ind
                     )
-                    OKBR.mem[i_tau] = mem_tmp
+                    okbr.mem[i_tau] = mem_tmp
                 end
             end
         end
     end
-    update_mem!(OKBR.mem, x_data)
+    update_mem!(okbr.mem, X_right)
     return nothing
 end

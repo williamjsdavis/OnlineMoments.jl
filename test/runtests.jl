@@ -3,6 +3,8 @@ using FileIO
 using Test
 include("./load_test_data.jl")
 
+#TODO: Write some tests for skipping tau (e.g. [2,4,6])
+
 # Test settings
 const tau_i_range = 1:1:6
 const x_edges = LinRange(0.0,0.4,5)

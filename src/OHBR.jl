@@ -24,7 +24,8 @@ function add_data!(ohbr::OHBR_single, X_right)
     if in_range(ohbr.edges, X_left)
         ΔX = X_right - X_left
         i = find_bin(ohbr.edges, X_left)
-        ohbr.mem = ohbr.M1[i]
+        M1_old = ohbr.M1[i]
+
         setindex!(ohbr.N, ohbr.N[i] + 1, i)
         setindex!(
             ohbr.M1,
@@ -33,7 +34,7 @@ function add_data!(ohbr::OHBR_single, X_right)
         )
         setindex!(
             ohbr.M2,
-            update_var(ohbr.M2[i], ohbr.M1[i], ohbr.mem, ΔX, ohbr.N[i]),
+            update_var(ohbr.M2[i], ohbr.M1[i], M1_old, ΔX, ohbr.N[i]),
             i
         )
     end
@@ -71,11 +72,13 @@ function add_data!(ohbr::OHBR_multiple, X_right)
         X_left = ohbr.mem[i_tau]
         ΔX = X_right - X_left
         mem_tmp = X_left
+        M1_old = ohbr.M1[i_tau,j_bin]
         ohbr.mem[i_tau] = ohbr.M1[i_tau,j_bin] # Old mean
+
         setindex!(ohbr.N, ohbr.N[i_tau,j_bin] + 1, i_tau, j_bin)
         setindex!(
             ohbr.M1,
-            update_mean(ohbr.M1[i_tau,j_bin], ΔX, ohbr.N[i_tau,j_bin]),
+            update_mean(M1_old, ΔX, ohbr.N[i_tau,j_bin]),
             i_tau, j_bin
         )
         setindex!(
@@ -83,7 +86,7 @@ function add_data!(ohbr::OHBR_multiple, X_right)
             update_var(
                 ohbr.M2[i_tau,j_bin],
                 ohbr.M1[i_tau,j_bin],
-                ohbr.mem[i_tau], ΔX,
+                M1_old, ΔX,
                 ohbr.N[i_tau,j_bin]
             ),
             i_tau, j_bin

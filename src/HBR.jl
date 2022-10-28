@@ -123,22 +123,23 @@ function HBR_moments_C2(X, tau_vector, edge_vector)
     # Bins
     b = broadcast(x->get_bin(edge_vector, x), X)
 
-    for (j,tau) in enumerate(tau_vector)
-        for (i_left, X_left) in enumerate(X[1:end-j])
-            bin = b[i_left]
-            if bin != 0
-                ΔX = X[i_left+j] - X_left
-                mem = M1[j, bin]
-                setindex!(N, N[j, bin] + 1, j, bin)
+    for (i_ind, i_tau) in enumerate(tau_vector)
+        for (i_left, X_left) in enumerate(X[1:end-i_tau])
+            j_bin = b[i_left]
+            if j_bin != 0
+                ΔX = X[i_left+i_tau] - X_left
+                M1_old = M1[i_ind, j_bin]
+
+                setindex!(N, N[i_ind, j_bin] + 1, i_ind, j_bin)
                 setindex!(
                     M1,
-                    update_mean(M1[j, bin], ΔX, N[j, bin]),
-                    j, bin
+                    update_mean(M1[i_ind, j_bin], ΔX, N[i_ind, j_bin]),
+                    i_ind, j_bin
                 )
                 setindex!(
                     M2,
-                    update_var(M2[j, bin], M1[j, bin], mem, ΔX, N[j, bin]),
-                    j, bin
+                    update_var(M2[i_ind, j_bin], M1[i_ind, j_bin], M1_old, ΔX, N[i_ind, j_bin]),
+                    i_ind, j_bin
                 )
             end
         end

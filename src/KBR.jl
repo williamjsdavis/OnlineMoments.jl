@@ -46,7 +46,7 @@ function KBR_moments_A2(X, tau_i_range, x_range, h, kernel)
     kernel_scaled(x) = hinv*kernel(hinv*x)
 
     for (i_left, X_left) in enumerate(X[1:end-1])
-        for (j_ind,x_eval) in enumerate(x_range)
+        for (j_ind, x_eval) in enumerate(x_range)
             K_weight = kernel_scaled(x_eval - X_left)
             for (i_ind,i_tau) in enumerate(tau_i_range)
                 i_right = i_left + i_tau

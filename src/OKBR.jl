@@ -28,17 +28,18 @@ function add_data!(okbr::OKBR_single, X_right)
         for (j_ind, x_eval) in enumerate(okbr.x_eval_points)
             K_weight = okbr.kernel(x_eval - X_left)
             if K_weight > 0.0
-                okbr.mem = okbr.w[j_ind] # Old weight
-                setindex!(okbr.w, okbr.w[j_ind] + K_weight, j_ind)
-                tmp = okbr.M1[j_ind]
+                w_old = okbr.w[j_ind]
+                M1_old = okbr.M1[j_ind]
+
+                setindex!(okbr.w, w_old + K_weight, j_ind)
                 setindex!(
                     okbr.M1,
-                    update_wmean(okbr.M1[j_ind], okbr.mem, ΔX, K_weight),
+                    update_wmean(okbr.M1[j_ind], w_old, ΔX, K_weight),
                     j_ind
                 )
                 setindex!(
                     okbr.M2,
-                    update_wvar(okbr.M2[j_ind], tmp, okbr.mem, ΔX, okbr.M1[j_ind], K_weight),
+                    update_wvar(okbr.M2[j_ind], M1_old, w_old, ΔX, okbr.M1[j_ind], K_weight),
                     j_ind
                 )
             end
@@ -80,21 +81,20 @@ function add_data!(okbr::OKBR_multiple, X_right)
             for (j_ind, x_eval) in enumerate(okbr.x_eval_points)
                 K_weight = okbr.kernel(x_eval - X_left)
                 if K_weight > 0.0
-                    mem_tmp = X_left
-                    okbr.mem[i_tau] = okbr.w[i_tau,j_ind] # Old weight
-                    setindex!(okbr.w, okbr.w[i_tau,j_ind] + K_weight, i_tau, j_ind)
-                    tmp = okbr.M1[i_tau, j_ind]
+                    w_old = okbr.w[i_tau,j_ind]
+                    M1_old = okbr.M1[i_tau, j_ind]
+
+                    setindex!(okbr.w, w_old + K_weight, i_tau, j_ind)
                     setindex!(
                         okbr.M1,
-                        update_wmean(okbr.M1[i_tau, j_ind], okbr.mem[i_tau], ΔX, K_weight),
+                        update_wmean(okbr.M1[i_tau, j_ind], w_old, ΔX, K_weight),
                         i_tau, j_ind
                     )
                     setindex!(
                         okbr.M2,
-                        update_wvar(okbr.M2[i_tau, j_ind], tmp, okbr.mem[i_tau], ΔX, okbr.M1[i_tau, j_ind], K_weight),
+                        update_wvar(okbr.M2[i_tau, j_ind], M1_old, w_old, ΔX, okbr.M1[i_tau, j_ind], K_weight),
                         i_tau, j_ind
                     )
-                    okbr.mem[i_tau] = mem_tmp
                 end
             end
         end

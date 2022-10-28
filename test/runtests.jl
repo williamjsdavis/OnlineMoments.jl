@@ -2,7 +2,6 @@ using OnlineMoments
 using FileIO
 using Test
 include("./testutils.jl")
-include("./load_test_data.jl")
 
 #TODO: Write some tests for skipping tau (e.g. [2,4,6])
 
@@ -94,7 +93,6 @@ end
 @testset "OHBR (multiple)" begin
     X_stream = stream_data(X_small)
 
-
     hbr_multiple = OHBR_multiple(x_edges, N_tau)
     @testset "Structs" begin
         @test hbr_multiple.edges == x_edges
@@ -120,26 +118,7 @@ end
 #M1_ref_A, M2_ref_A = HBR_moments_A(X_small, tau_i_range, x_edges)
 
 ## Kernels
-@testset "Kernels" begin
-    boxcar = OnlineMoments.Boxcar()
-    @test boxcar(0.0) == 0.5
-    @test boxcar(0.5) == 0.5
-    @test boxcar(0.99) == 0.5
-    @test boxcar(-0.99) == 0.5
-    @test boxcar(-1.0) == 0.0
-    @test boxcar(1.0) == 0.0
-
-    epaneknikov = OnlineMoments.Epaneknikov()
-    @test epaneknikov(0.0) ≈ 5*3*sqrt(5)/100
-    @test epaneknikov(sqrt(5)) ≈ 0
-    @test epaneknikov(sqrt(5)-0.01) > 0
-    @test epaneknikov(sqrt(5)+0.01) == 0
-    @test epaneknikov(sqrt(5)+1.0) == 0
-    @test epaneknikov(-sqrt(5)+0.01) > 0
-    @test epaneknikov(-sqrt(5)-0.01) == 0
-    @test epaneknikov(-sqrt(5)-1.0) == 0
-end
-
+include("./testkernels.jl")
 
 ## Kernel Based Regression, 1D (normal methods)
 

@@ -43,15 +43,15 @@ function myadd_data!(KBR, X_new)
             K_weight = KBR.kernel(j_xeval - KBR.mem)
             if K_weight > 0.0
                 KBR.mem = KBR.M1[j_ind] # Old mean?
-                setindex!(KBR.N, KBR.N[j_ind] + K_weight, j_ind)
+                setindex!(KBR.w, KBR.w[j_ind] + K_weight, j_ind)
                 setindex!(
                     KBR.M1,
-                    OnlineMoments.update_mean(KBR.M1[j_ind], K_weight * ΔX, KBR.N[j_ind]),
+                    OnlineMoments.update_mean(KBR.M1[j_ind], K_weight * ΔX, KBR.w[j_ind]),
                     j_ind
                 )
                 setindex!(
                     KBR.M2,
-                    OnlineMoments.update_var(KBR.M2[j_ind], KBR.M1[j_ind], KBR.mem, K_weight * ΔX*ΔX, KBR.N[j_ind]),
+                    OnlineMoments.update_var(KBR.M2[j_ind], KBR.M1[j_ind], KBR.mem, K_weight * ΔX*ΔX, KBR.w[j_ind]),
                     j_ind
                 )
                 #N[i_ind,j_ind] += K_weight
@@ -68,8 +68,8 @@ function myadd_dataw!(KBR, X_new)
         for (j_ind,j_xeval) in enumerate(KBR.x_eval_points)
             K_weight = KBR.kernel(j_xeval - KBR.mem)
             if K_weight > 0.0
-                KBR.mem = KBR.N[j_ind] # Old weight
-                setindex!(KBR.N, KBR.N[j_ind] + K_weight, j_ind)
+                KBR.mem = KBR.w[j_ind] # Old weight
+                setindex!(KBR.w, KBR.w[j_ind] + K_weight, j_ind)
                 tmp = KBR.M1[j_ind]
                 setindex!(
                     KBR.M1,

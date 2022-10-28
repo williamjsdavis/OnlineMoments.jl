@@ -1,6 +1,7 @@
 using OnlineMoments
 using FileIO
 using Test
+include("./testutils.jl")
 include("./load_test_data.jl")
 
 #TODO: Write some tests for skipping tau (e.g. [2,4,6])
@@ -60,17 +61,15 @@ end
 ## Online Histogram Based Regression, 1D (online methods)
 
 @testset "Streaming data" begin
-    X_sample = deepcopy(X_small)
-    X_stream() = popfirst!(X_sample)
+    X_stream = stream_data(X_small)
 
-    @test X_stream() == X_small[1]
-    @test X_stream() == X_small[2]
-    @test X_stream() == X_small[3]
+    @test X_small[1] == X_stream()
+    @test X_small[2] == X_stream()
+    @test X_small[3] == X_stream()
 end
 
 @testset "OHBR (single)" begin
-    X_sample = deepcopy(X_small)
-    X_stream() = popfirst!(X_sample)
+    X_stream = stream_data(X_small)
 
     hbr_single = OHBR_single(x_edges)
     @testset "Structs" begin
@@ -92,8 +91,7 @@ end
 end
 
 @testset "OHBR (multiple)" begin
-    X_sample = deepcopy(X_small)
-    X_stream() = popfirst!(X_sample)
+    X_stream = stream_data(X_small)
 
 
     hbr_multiple = OHBR_multiple(x_edges, N_tau)
@@ -180,8 +178,7 @@ end
 ## Online Kernel Based Regression, 1D (online methods)
 
 @testset "OKBR (single)" begin
-    X_sample = deepcopy(X_small)
-    X_stream() = popfirst!(X_sample)
+    X_stream = stream_data(X_small)
 
     hinv = inv(h)
     kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
@@ -207,8 +204,7 @@ end
 end
 
 @testset "OKBR (multiple)" begin
-    X_sample = deepcopy(X_small)
-    X_stream() = popfirst!(X_sample)
+    X_stream = stream_data(X_small)
 
     hinv = inv(h)
     kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
@@ -239,8 +235,7 @@ end
 ## Comparing online algorithms
 
 @testset "Comparing online algorithms" begin
-    X_sample = deepcopy(X_small)
-    X_stream() = popfirst!(X_sample)
+    X_stream = stream_data(X_small)
 
     hinv = inv(h)
     kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)

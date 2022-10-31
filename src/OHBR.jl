@@ -47,19 +47,22 @@ end
 
 mutable struct OHBR_multiple
     edges::LinRange{Float64}
+    tau_i::Array{Int64,1}
     N::Array{Int64,2}
     M1::Array{Float64,2}
     M2::Array{Float64,2}
     mem::Array{Float64,1}
     bin_mem::Array{Int64,1}
 end
-function OHBR_multiple(x_range::LinRange, τ_len::Integer)
-    #TODO: make τ_len consistent with length or array
+function OHBR_multiple(x_range::LinRange, tau_i::AbstractArray)
+    #TODO: generalize to array not starting at 1
     Nx = length(x_range) - 1
+    τ_len = length(tau_i)
     mem = zeros(Float64, τ_len)
     mem .= NaN
     OHBR_multiple(
         x_range,
+        tau_i,
         zeros(Int, τ_len, Nx),
         zeros(Float64, τ_len, Nx),
         zeros(Float64, τ_len, Nx),
@@ -67,8 +70,9 @@ function OHBR_multiple(x_range::LinRange, τ_len::Integer)
         zeros(Int, τ_len)
     )
 end
-OHBR_multiple(x_range::LinRange, τ_array::AbstractArray) = 
-    OHBR_multiple(x_range, length(τ_array))
+
+#M1τ(ohbr, dt) = ohbr.M1 ./ (dt*ohbr.tau_range)
+
 function add_data!(ohbr::OHBR_multiple, X_right)
     for (i_tau, j_bin) in enumerate(ohbr.bin_mem) if j_bin != 0
         X_left = ohbr.mem[i_tau]

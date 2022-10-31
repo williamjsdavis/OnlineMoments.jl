@@ -1,6 +1,6 @@
 using OnlineMoments
 using JLD2, FileIO
-include("./load_test_data.jl")
+include("./testutils.jl")
 
 # Test settings
 const tau_i_range = 1:1:6
@@ -180,7 +180,7 @@ function myadd_datam!(OKBR, x_data)
     OnlineMoments.update_mem!(OKBR.mem, x_data)
 end
 
-kbr_multiple = OKBR_multiple(x_centers, N_tau, kernel_scaled)
+kbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
 
 X_sample = deepcopy(X_small)
 X_stream() = popfirst!(X_sample)
@@ -192,8 +192,8 @@ myadd_datam!(kbr_multiple, X_data_sample)
 
 ## Testing again
 
-hbr_multiple = OHBR_multiple(x_edges, N_tau)
-kbr_multiple = OKBR_multiple(x_centers, N_tau, kernel_scaled)
+hbr_multiple = OHBR_multiple(x_edges, tau_i_range)
+kbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
 
 X_sample = deepcopy(X_small)
 X_stream() = popfirst!(X_sample)

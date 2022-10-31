@@ -189,7 +189,7 @@ end
     hinv = inv(h)
     kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
 
-    kbr_multiple = OKBR_multiple(x_centers, N_tau,  kernel_scaled)
+    kbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
     @testset "Structs" begin
         @test kbr_multiple.x_eval_points == x_centers
         @test size(kbr_multiple.w) == (N_tau, N_x)
@@ -223,7 +223,7 @@ end
     hbr_single = OHBR_single(x_edges)
     kbr_single = OKBR_single(x_centers, kernel_scaled)
 
-    hbr_multiple = OHBR_multiple(x_edges, N_tau)
+    hbr_multiple = OHBR_multiple(x_edges, tau_i_range)
 
     for _ in 1:N_data
         X_data = X_stream()

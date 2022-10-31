@@ -53,6 +53,7 @@ end
 
 mutable struct OKBR_multiple
     x_eval_points::LinRange{Float64}
+    tau_i::Array{Int64,1}
     w::Array{Float64,2}
     M1::Array{Float64,2}
     M2::Array{Float64,2}
@@ -60,12 +61,15 @@ mutable struct OKBR_multiple
     w_mem::Array{Float64,1}
     kernel
 end
-function OKBR_multiple(x_eval_points::LinRange, τ_len::Integer, kernel)
+function OKBR_multiple(x_eval_points::LinRange, tau_i::AbstractArray, kernel)
+    #TODO: generalize to array not starting at 1
     Nx = length(x_eval_points)
+    τ_len = length(tau_i)
     mem = zeros(Float64, τ_len)
     mem .= NaN
     OKBR_multiple(
         x_eval_points,
+        tau_i,
         zeros(Int, τ_len, Nx),
         zeros(Float64, τ_len, Nx),
         zeros(Float64, τ_len, Nx),

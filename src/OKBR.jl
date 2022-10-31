@@ -78,6 +78,12 @@ function OKBR_multiple(x_eval_points::LinRange, tau_i::AbstractArray, kernel)
         kernel
     )
 end
+
+# Scaled moments
+M1τ(ohbr::OKBR_multiple, dt) = ohbr.M1 ./ (dt*ohbr.tau_i)
+M2τ(ohbr::OKBR_multiple, dt) = ohbr.M2 ./ (dt*ohbr.tau_i)
+
+# Add data to moments
 function add_data!(okbr::OKBR_multiple, X_right)
     for (i_tau, X_left) in enumerate(okbr.mem)
         if !isnan(X_left)

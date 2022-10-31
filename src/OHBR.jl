@@ -19,6 +19,12 @@ function OHBR_single(x_range::LinRange)
         NaN
     )
 end
+
+# Scaled moments
+M1τ(ohbr::OHBR_single, dt) = ohbr.M1 / dt
+M2τ(ohbr::OHBR_single, dt) = ohbr.M2 / dt
+
+# Add data to moments
 function add_data!(ohbr::OHBR_single, X_right)
     X_left = ohbr.mem
     if in_range(ohbr.edges, X_left)
@@ -71,8 +77,11 @@ function OHBR_multiple(x_range::LinRange, tau_i::AbstractArray)
     )
 end
 
-#M1τ(ohbr, dt) = ohbr.M1 ./ (dt*ohbr.tau_range)
+# Scaled moments
+M1τ(ohbr::OHBR_multiple, dt) = ohbr.M1 ./ (dt*ohbr.tau_i)
+M2τ(ohbr::OHBR_multiple, dt) = ohbr.M2 ./ (dt*ohbr.tau_i)
 
+    # Add data to moments
 function add_data!(ohbr::OHBR_multiple, X_right)
     for (i_tau, j_bin) in enumerate(ohbr.bin_mem) if j_bin != 0
         X_left = ohbr.mem[i_tau]

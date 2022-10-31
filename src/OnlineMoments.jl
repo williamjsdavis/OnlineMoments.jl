@@ -13,6 +13,8 @@ export OKBR_single, OKBR_multiple
 
 export add_data!
 
+export M1τ, M2τ
+
 greet() = print("Hello World!")
 
 include("utils.jl")

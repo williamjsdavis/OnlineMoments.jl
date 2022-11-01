@@ -7,9 +7,7 @@ include("./testutils.jl")
 
 # Test settings
 const tau_i_range = 1:6
-#const x_edges = LinRange(0.0,0.4,5)
-#const x_edges = range(0.0,0.4,5)
-const x_edges = range(0.01,0.41,5)
+const x_edges = range(0.01, 0.41, length=5)
 
 # Load test data
 const X_small = load_small_data()

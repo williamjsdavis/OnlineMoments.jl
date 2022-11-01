@@ -2,14 +2,14 @@
 
 ## Single step algorithm, 1D (for testing)
 
-mutable struct OHBR_single
-    edges::LinRange{Float64}
+mutable struct OHBR_single{T<:AbstractRange}
+    edges::T
     N::Array{Int64,1}
     M1::Array{Float64,1}
     M2::Array{Float64,1}
     mem::Float64
 end
-function OHBR_single(x_range::LinRange)
+function OHBR_single(x_range)
     Nx = length(x_range) - 1
     OHBR_single(
         x_range,
@@ -51,16 +51,16 @@ end
 
 ## Multi step algorithm, 1D
 
-mutable struct OHBR_multiple
-    edges::LinRange{Float64}
-    tau_i::Array{Int64,1}
+mutable struct OHBR_multiple{T<:AbstractRange}
+    edges::T
+    tau_i::UnitRange{Int}
     N::Array{Int64,2}
     M1::Array{Float64,2}
     M2::Array{Float64,2}
     mem::Array{Float64,1}
     bin_mem::Array{Int64,1}
 end
-function OHBR_multiple(x_range::LinRange, tau_i::AbstractArray)
+function OHBR_multiple(x_range, tau_i)
     #TODO: generalize to array not starting at 1
     Nx = length(x_range) - 1
     τ_len = length(tau_i)

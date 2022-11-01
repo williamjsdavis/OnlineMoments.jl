@@ -2,15 +2,15 @@
 
 ## Single step algorithm, 1D (for testing)
 
-mutable struct OKBR_single
-    x_eval_points::LinRange{Float64}
+mutable struct OKBR_single{T<:AbstractRange}
+    x_eval_points::T
     w::Array{Float64,1}
     M1::Array{Float64,1}
     M2::Array{Float64,1}
     mem::Float64
     kernel
 end
-function OKBR_single(x_eval_points::LinRange, kernel)
+function OKBR_single(x_eval_points, kernel)
     Nx = length(x_eval_points)
     OKBR_single(
         x_eval_points,
@@ -51,9 +51,9 @@ end
 
 ## Multi step algorithm, 1D
 
-mutable struct OKBR_multiple
-    x_eval_points::LinRange{Float64}
-    tau_i::Array{Int64,1}
+mutable struct OKBR_multiple{T<:AbstractRange}
+    x_eval_points::T
+    tau_i::UnitRange{Int}
     w::Array{Float64,2}
     M1::Array{Float64,2}
     M2::Array{Float64,2}
@@ -61,7 +61,7 @@ mutable struct OKBR_multiple
     w_mem::Array{Float64,1}
     kernel
 end
-function OKBR_multiple(x_eval_points::LinRange, tau_i::AbstractArray, kernel)
+function OKBR_multiple(x_eval_points, tau_i, kernel)
     #TODO: generalize to array not starting at 1
     Nx = length(x_eval_points)
     τ_len = length(tau_i)
@@ -70,7 +70,7 @@ function OKBR_multiple(x_eval_points::LinRange, tau_i::AbstractArray, kernel)
     OKBR_multiple(
         x_eval_points,
         tau_i,
-        zeros(Int, τ_len, Nx),
+        zeros(Float64, τ_len, Nx),
         zeros(Float64, τ_len, Nx),
         zeros(Float64, τ_len, Nx),
         mem,

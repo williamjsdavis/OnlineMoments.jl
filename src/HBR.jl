@@ -10,7 +10,7 @@ function HBR_moments_A(X, tau_vector, edge_vector)
         in_range(edge_vector,y) ? find_bin(edge_vector,y) : 0
     end
     for (i,tau) in enumerate(tau_vector)
-        for j in 1:edge_vector.lendiv
+        for j in 1:(length(edge_vector)-1)
             iX = findall(bin_index[1:end-tau] .== j)
             ΔX = X[iX .+ tau] .- X[iX]
             M1[i,j] = mean(ΔX)
@@ -31,7 +31,7 @@ function HBR_moments_A2(X, tau_vector, edge_vector)
         in_range(edge_vector, y) ? find_bin(edge_vector, y) : 0
     end
     for (i,tau) in enumerate(tau_vector)
-        for j in 1:edge_vector.lendiv
+        for j in 1:(length(edge_vector)-1)
             iX = findall(bin_index[1:end-tau] .== j)
             ΔX = X[iX .+ tau] .- X[iX]
             M1[i,j] = mean(ΔX)
@@ -42,14 +42,14 @@ function HBR_moments_A2(X, tau_vector, edge_vector)
 end
 
 # Algorithm B: map over X elements
-function HBR_moments_B(X::AbstractVector, tau_vector, edge_vector::LinRange)
+function HBR_moments_B(X::AbstractVector, tau_vector, edge_vector::AbstractRange)
     ti_grid = make_grid(tau_vector, edge_vector)
 
     bin_index = map(X) do y
         in_range(edge_vector, y) ? find_bin(edge_vector, y) : 0
     end
 
-    bin_groups = map(1:edge_vector.lendiv) do i
+    bin_groups = map(1:(length(edge_vector)-1)) do i
         findall(bin_index[1:end-maximum(tau_vector)].==i)
     end
 
@@ -64,6 +64,9 @@ function HBR_moments_B(X::AbstractVector, tau_vector, edge_vector::LinRange)
 end
 function make_grid(tau_vector::AbstractVector, edge_vector::LinRange)
     return broadcast((x,y)->(x,y), tau_vector, (1:edge_vector.lendiv)')
+end
+function make_grid(tau_vector::AbstractVector, edge_vector::AbstractRange)
+    return broadcast((x,y)->(x,y), tau_vector, (1:(length(edge_vector)-1))')
 end
 function get_moments(X, iX, tau)
     ΔX = X[iX .+ tau] .- X[iX]

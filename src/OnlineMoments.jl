@@ -5,6 +5,7 @@ module OnlineMoments
 export Epaneknikov, Boxcar
 
 export HBR_moments_A, HBR_moments_B, HBR_moments_C, HBR_moments_C2
+export HBR_moments_C3 # modulo
 export KBR_moments_A, KBR_moments_A2
 export HBR_moments_A2 # Remove this
 

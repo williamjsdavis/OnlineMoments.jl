@@ -30,6 +30,7 @@ M1_ref_A, M2_ref_A = HBR_moments_A(X_small, tau_i_range, x_edges)
 M1_ref_B, M2_ref_B = HBR_moments_B(X_small, tau_i_range, x_edges)
 M1_ref_C, M2_ref_C = HBR_moments_C(X_small, tau_i_range, x_edges)
 M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
+M1_ref_C3, M2_ref_C3 = HBR_moments_C3(X_small, tau_i_range, x_edges, 1000)
 
 @testset "HBR moments" begin
     @testset "Size" begin
@@ -41,6 +42,8 @@ M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
         @test size(M2_ref_C) == (N_tau, N_x)
         @test size(M1_ref_C2) == (N_tau, N_x)
         @test size(M2_ref_C2) == (N_tau, N_x)
+        @test size(M1_ref_C3) == (N_tau, N_x)
+        @test size(M2_ref_C3) == (N_tau, N_x)
     end
 
     @testset "Values" begin
@@ -55,6 +58,11 @@ M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
         # Algorithms C and C2 give identical results
         @test all(M1_ref_C .== M1_ref_C2)
         @test all(M2_ref_C .== M2_ref_C2)
+
+        # Modulo moments
+        # Algorithms C and C3 give identical results, for large mod
+        @test all(M1_ref_C .== M1_ref_C3)
+        @test all(M2_ref_C .== M2_ref_C3)
     end
 end
 

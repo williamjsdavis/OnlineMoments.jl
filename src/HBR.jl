@@ -150,3 +150,53 @@ function HBR_moments_C2(X, tau_vector, edge_vector)
 
     return M1, M2
 end
+
+## Modulo moments
+d_plus(a,b,n) = mod(b-a,n)
+"Half-open interval"
+is_in_interval_mod(a,b,n,x) = d_plus(a,x,n) < d_plus(a,b,n)
+function find_mod_bin(edge_vector, n, X)
+    for (i,a) in enumerate(edge_vector[1:end-1])
+        b = edge_vector[i+1]
+        if is_in_interval_mod(a,b,n,X)
+            return i
+        end
+    end
+    return 0
+end
+function HBR_moments_C3(X, tau_vector, edge_vector, period)
+    nτ = length(tau_vector)
+    nx = length(edge_vector) - 1
+    nX = length(X)
+    N = zeros(nτ,nx)
+    M1 = zeros(nτ,nx)
+    M2 = zeros(nτ,nx)
+    mem = 0.0
+
+    for (i_left, X_left) in enumerate(X[1:end-1])
+        if in_range(edge_vector, X_left)
+            #k = find_bin(edge_vector, X_left)
+            k = find_mod_bin(edge_vector, period, X_left)
+            for (j,tau) in enumerate(tau_vector)
+                ii = i_left + j
+                if ii <= nX
+                    ΔX = X[ii] - X_left
+                    mem = M1[j, k]
+                    setindex!(N, N[j,k] + 1, j, k)
+                    setindex!(
+                        M1,
+                        update_mean(M1[j, k], ΔX, N[j, k]),
+                        j, k
+                    )
+                    setindex!(
+                        M2,
+                        update_var(M2[j, k], M1[j, k], mem, ΔX, N[j, k]),
+                        j, k
+                    )
+                end
+            end
+        end
+    end
+
+    return M1, M2
+end

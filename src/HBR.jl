@@ -164,7 +164,7 @@ function find_mod_bin(edge_vector, n, X)
     end
     return 0
 end
-function HBR_moments_C3(X, tau_vector, edge_vector, period)
+function HBR_moments_mod(X, tau_vector, edge_vector, period)
     nτ = length(tau_vector)
     nx = length(edge_vector) - 1
     nX = length(X)

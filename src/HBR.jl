@@ -174,9 +174,8 @@ function HBR_moments_C3(X, tau_vector, edge_vector, period)
     mem = 0.0
 
     for (i_left, X_left) in enumerate(X[1:end-1])
-        if in_range(edge_vector, X_left)
-            #k = find_bin(edge_vector, X_left)
-            k = find_mod_bin(edge_vector, period, X_left)
+        k = find_mod_bin(edge_vector, period, X_left)
+        if k != 0
             for (j,tau) in enumerate(tau_vector)
                 ii = i_left + j
                 if ii <= nX

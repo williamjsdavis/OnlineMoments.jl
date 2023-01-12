@@ -5,20 +5,26 @@ include("./testutils.jl")
 
 #TODO: Write some tests for skipping tau (e.g. [2,4,6])
 
+# Load test data
+const X_small = load_small_data()
+const N_data = length(X_small)
+
 # Test settings
 const tau_i_range = 1:6
 const x_edges = range(0.01, 0.41, length=5)
 
-# Load test data
-const X_small = load_small_data()
-const N_data = length(X_small)
-#X_small = X_small[1:10]
-
 # Derived test variables
+X_range = maximum(X_small) - minimum(X_small)
 x_centers = 0.5*(x_edges[1:end-1] + x_edges[2:end])
 N_tau = length(tau_i_range)
 N_x = length(x_centers)
 
+# Shifted test data (for modulo moments)
+const modulo_period_large = 100*X_range
+X_offset = 1000*modulo_period_large
+const X_shift = X_small .- X_offset
+
+# Kernel variables
 h = 0.5*step(x_centers)
 kernel_boxcar = Boxcar()
 kernel_epan = Epaneknikov()
@@ -30,7 +36,12 @@ M1_ref_A, M2_ref_A = HBR_moments_A(X_small, tau_i_range, x_edges)
 M1_ref_B, M2_ref_B = HBR_moments_B(X_small, tau_i_range, x_edges)
 M1_ref_C, M2_ref_C = HBR_moments_C(X_small, tau_i_range, x_edges)
 M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
-M1_ref_C3, M2_ref_C3 = HBR_moments_C3(X_small, tau_i_range, x_edges, 1000)
+M1_ref_C3, M2_ref_C3 = HBR_moments_C3(X_small, tau_i_range, x_edges, modulo_period_large)
+M1_ref_C3b, M2_ref_C3b = HBR_moments_C3(X_shift, tau_i_range, x_edges, modulo_period_large)
+
+println(M1_ref_C3)
+println(M1_ref_C3b)
+@show (M1_ref_C3 .- M1_ref_C3b)
 
 @testset "HBR moments" begin
     @testset "Size" begin
@@ -60,9 +71,14 @@ M1_ref_C3, M2_ref_C3 = HBR_moments_C3(X_small, tau_i_range, x_edges, 1000)
         @test all(M2_ref_C .== M2_ref_C2)
 
         # Modulo moments
-        # Algorithms C and C3 give identical results, for large mod
+        # Algorithms C and C3 give identical results, for large mod period
         @test all(M1_ref_C .== M1_ref_C3)
         @test all(M2_ref_C .== M2_ref_C3)
+
+        # Test for translational invariance,
+        # for translation = k*period, k>>1
+        @test all(M1_ref_C3 .≈ M1_ref_C3b)
+        @test all(M2_ref_C3 .≈ M2_ref_C3b)
     end
 end
 

@@ -2,13 +2,19 @@ module OnlineMoments
 
 # using Statistics: mean
 
+# Kernels
 export Epaneknikov, Boxcar
 
+# Traditional moments
 export HBR_moments_A, HBR_moments_B, HBR_moments_C, HBR_moments_C2
-export HBR_moments_mod # modulo
 export KBR_moments_A, KBR_moments_A2
 export HBR_moments_A2 # Remove this
 
+# Modulo moments
+export HBR_moments_mod
+export KBR_moments_mod
+
+# Online moments
 export OHBR_single, OHBR_multiple
 export OKBR_single, OKBR_multiple
 

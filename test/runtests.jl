@@ -36,12 +36,12 @@ M1_ref_A, M2_ref_A = HBR_moments_A(X_small, tau_i_range, x_edges)
 M1_ref_B, M2_ref_B = HBR_moments_B(X_small, tau_i_range, x_edges)
 M1_ref_C, M2_ref_C = HBR_moments_C(X_small, tau_i_range, x_edges)
 M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
-M1_ref_C3, M2_ref_C3 = HBR_moments_mod(X_small, tau_i_range, x_edges, modulo_period_large)
-M1_ref_C3b, M2_ref_C3b = HBR_moments_mod(X_shift, tau_i_range, x_edges, modulo_period_large)
 
-println(M1_ref_C3)
-println(M1_ref_C3b)
-@show (M1_ref_C3 .- M1_ref_C3b)
+# Modulo moments
+M1_ref_mod, M2_ref_mod =
+    HBR_moments_mod(X_small, tau_i_range, x_edges, modulo_period_large)
+M1_ref_mod_shift, M2_ref_mod_shift =
+    HBR_moments_mod(X_shift, tau_i_range, x_edges, modulo_period_large)
 
 @testset "HBR moments" begin
     @testset "Size" begin
@@ -53,8 +53,10 @@ println(M1_ref_C3b)
         @test size(M2_ref_C) == (N_tau, N_x)
         @test size(M1_ref_C2) == (N_tau, N_x)
         @test size(M2_ref_C2) == (N_tau, N_x)
-        @test size(M1_ref_C3) == (N_tau, N_x)
-        @test size(M2_ref_C3) == (N_tau, N_x)
+        @test size(M1_ref_mod) == (N_tau, N_x)
+        @test size(M2_ref_mod) == (N_tau, N_x)
+        @test size(M2_ref_mod_shift) == (N_tau, N_x)
+        @test size(M2_ref_mod_shift) == (N_tau, N_x)
     end
 
     @testset "Values" begin
@@ -71,14 +73,14 @@ println(M1_ref_C3b)
         @test all(M2_ref_C .== M2_ref_C2)
 
         # Modulo moments
-        # Algorithms C and C3 give identical results, for large mod period
-        @test all(M1_ref_C .== M1_ref_C3)
-        @test all(M2_ref_C .== M2_ref_C3)
+        # Algorithms C and "mod" give identical results, for large mod period
+        @test all(M1_ref_C .== M1_ref_mod)
+        @test all(M2_ref_C .== M2_ref_mod)
 
         # Test for translational invariance,
         # for translation = k*period, k>>1
-        @test all(M1_ref_C3 .≈ M1_ref_C3b)
-        @test all(M2_ref_C3 .≈ M2_ref_C3b)
+        @test all(M1_ref_mod .≈ M1_ref_mod_shift)
+        @test all(M2_ref_mod .≈ M2_ref_mod_shift)
     end
 end
 
@@ -150,6 +152,12 @@ include("./testkernels.jl")
 M1_K_ref_A, M2_K_ref_A = KBR_moments_A(X_small, tau_i_range, x_centers, h, kernel_boxcar)
 M1_K_ref_A2, M2_K_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, kernel_boxcar)
 
+# Boxcar kernel: modulo moments
+M1_K_ref_mod, M2_K_ref_mod =
+    KBR_moments_mod(X_small, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
+M1_K_ref_mod_shift, M2_K_ref_mod_shift =
+    KBR_moments_mod(X_shift, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
+
 # Epaneknikov kernel (cannot validate)
 M1_KE_ref_A, M2_KE_ref_A = KBR_moments_A(X_small, tau_i_range, x_centers, h, kernel_epan)
 M1_KE_ref_A2, M2_KE_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, kernel_epan)
@@ -164,6 +172,10 @@ M1_KE_ref_A2, M2_KE_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, 
         @test size(M2_KE_ref_A) == (N_tau, N_x)
         @test size(M1_KE_ref_A2) == (N_tau, N_x)
         @test size(M2_KE_ref_A2) == (N_tau, N_x)
+        @test size(M1_K_ref_mod) == (N_tau, N_x)
+        @test size(M2_K_ref_mod) == (N_tau, N_x)
+        @test size(M1_K_ref_mod_shift) == (N_tau, N_x)
+        @test size(M2_K_ref_mod_shift) == (N_tau, N_x)
     end
 
     @testset "Values" begin
@@ -173,9 +185,26 @@ M1_KE_ref_A2, M2_KE_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, 
         @test all(M1_KE_ref_A .== M1_KE_ref_A2)
         @test all(M2_KE_ref_A .== M2_KE_ref_A2)
 
-        # Algorithm A gives almost the same results as (normal) C
+        # Algorithm A gives almost the same results as (HBR) C
+        #NOTE: I should highlight that this is a regression test...
+        #NOTE: Make it its own section?
         @test all(M1_K_ref_A .≈ M1_ref_C)
         @test all(M2_K_ref_A .≈ M2_ref_C)
+
+        # Modulo moments
+        # Algorithms A and "mod" give identical results, for large mod period
+        @test all(M1_K_ref_A .== M1_K_ref_mod)
+        @test all(M2_K_ref_A .== M2_K_ref_mod)
+
+        # Algorithm "mod" gives almost the same results as (HBR) C
+        #NOTE: Same comment as above
+        @test all(M1_K_ref_mod .≈ M1_ref_C)
+        @test all(M2_K_ref_mod .≈ M2_ref_C)
+
+        # Test for translational invariance,
+        # for translation = k*period, k>>1
+        @test all(M1_K_ref_mod .≈ M1_K_ref_mod_shift)
+        @test all(M2_K_ref_mod .≈ M2_K_ref_mod_shift)
     end
 end
 

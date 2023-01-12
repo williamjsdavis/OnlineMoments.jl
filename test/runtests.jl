@@ -116,6 +116,34 @@ end
     end
 end
 
+@testset "OHBR (single, mod)" begin
+    X_stream = stream_data(X_small)
+
+    hbr_mod_single = OHBR_mod_single(x_edges, modulo_period_large)
+    @testset "Structs" begin
+        @test hbr_mod_single.edges == x_edges
+        @test hbr_mod_single.period == modulo_period_large
+        @test size(hbr_mod_single.N) == (N_x,)
+        @test size(hbr_mod_single.M1) == (N_x,)
+        @test size(hbr_mod_single.M2) == (N_x,)
+        @test size(hbr_mod_single.mem) == ()
+    end
+
+    for _ in 1:N_data
+        add_data!(hbr_mod_single, X_stream())
+    end
+    @testset "Moments" begin
+        # Algorithms C and streaming "mod" give identical results, for large mod period
+        @test all(hbr_mod_single.M1 .== M1_ref_C[1,:])
+        @test all(hbr_mod_single.M2 .== M2_ref_C[1,:])
+
+        # Test for translational invariance,
+        # for translation = k*period, k>>1
+        @test all(hbr_mod_single.M1 .≈ M1_ref_mod_shift[1,:])
+        @test all(hbr_mod_single.M2 .≈ M2_ref_mod_shift[1,:])
+    end
+end
+
 @testset "OHBR (multiple)" begin
     X_stream = stream_data(X_small)
 

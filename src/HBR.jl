@@ -152,18 +152,6 @@ function HBR_moments_C2(X, tau_vector, edge_vector)
 end
 
 ## Modulo moments
-d_plus(a,b,n) = mod(b-a,n)
-"Half-open interval"
-is_in_interval_mod(a,b,n,x) = d_plus(a,x,n) < d_plus(a,b,n)
-function find_mod_bin(edge_vector, n, X)
-    for (i,a) in enumerate(edge_vector[1:end-1])
-        b = edge_vector[i+1]
-        if is_in_interval_mod(a,b,n,X)
-            return i
-        end
-    end
-    return 0
-end
 function HBR_moments_mod(X, tau_vector, edge_vector, period)
     nτ = length(tau_vector)
     nx = length(edge_vector) - 1

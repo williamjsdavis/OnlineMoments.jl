@@ -112,3 +112,53 @@ function add_data!(ohbr::OHBR_multiple, X_right)
     update_mem!(ohbr.bin_mem, get_bin(ohbr.edges, X_right))
     return nothing
 end
+
+## Modulo moments, single step algorithm, 1D (for testing)
+
+mutable struct OHBR_mod_single{T<:AbstractRange}
+    edges::T
+    period::Float64
+    N::Array{Int64,1}
+    M1::Array{Float64,1}
+    M2::Array{Float64,1}
+    mem::Float64
+end
+function OHBR_mod_single(x_range, period)
+    Nx = length(x_range) - 1
+    OHBR_mod_single(
+        x_range,
+        period,
+        zeros(Int, Nx),
+        zeros(Float64, Nx),
+        zeros(Float64, Nx),
+        NaN
+    )
+end
+
+# Scaled moments
+M1τ(ohbr::OHBR_mod_single, dt) = ohbr.M1 / dt
+M2τ(ohbr::OHBR_mod_single, dt) = ohbr.M2 / dt
+
+# Add data to moments
+function add_data!(ohbr::OHBR_mod_single, X_right)
+    X_left = ohbr.mem
+    i = find_mod_bin(ohbr.edges, ohbr.period, X_left)
+    if i != 0
+        ΔX = X_right - X_left
+        M1_old = ohbr.M1[i]
+
+        setindex!(ohbr.N, ohbr.N[i] + 1, i)
+        setindex!(
+            ohbr.M1,
+            update_mean(ohbr.M1[i], ΔX, ohbr.N[i]),
+            i
+        )
+        setindex!(
+            ohbr.M2,
+            update_var(ohbr.M2[i], ohbr.M1[i], M1_old, ΔX, ohbr.N[i]),
+            i
+        )
+    end
+    ohbr.mem = X_right
+    return nothing
+end

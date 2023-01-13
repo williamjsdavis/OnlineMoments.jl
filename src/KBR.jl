@@ -70,7 +70,6 @@ function KBR_moments_A2(X, tau_i_range, x_range, h, kernel)
 end
 
 ## Modulo moments
-d_mod(x,n) = min(mod(x,n),mod(-x,n))
 function KBR_moments_mod(X, tau_i_range, x_range, h, kernel, period)
     n = length(X)
     nτ = length(tau_i_range)

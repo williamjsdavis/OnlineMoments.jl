@@ -21,6 +21,9 @@ function find_mod_bin(edge_vector, n, X)
     return 0
 end
 
+# Modulo distance
+d_mod(x,n) = min(mod(x,n),mod(-x,n))
+
 # Test
 #map(x->(find_bin(range(0.0, 0.4, 5), x), find_bin(LinRange(0.0, 0.4, 5), x)), range(-0.1,0.5,10))
 

@@ -51,7 +51,7 @@ end
 
 ## Multi step algorithm, 1D
 
-mutable struct OKBR_multiple{T<:AbstractRange}
+mutable struct OKBR_multiple{T<:AbstractRange,F<:Function}
     x_eval_points::T
     tau_i::UnitRange{Int}
     w::Array{Float64,2}
@@ -59,7 +59,7 @@ mutable struct OKBR_multiple{T<:AbstractRange}
     M2::Array{Float64,2}
     mem::Array{Float64,1}
     w_mem::Array{Float64,1}
-    kernel
+    kernel::F
 end
 function OKBR_multiple(x_eval_points, tau_i, kernel)
     #TODO: generalize to array not starting at 1

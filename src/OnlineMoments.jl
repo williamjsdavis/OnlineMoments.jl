@@ -17,7 +17,7 @@ export KBR_moments_mod
 # Online moments
 export OHBR_single, OHBR_multiple
 export OKBR_single, OKBR_multiple
-export OHBR_mod_single
+export OHBR_mod_single, OHBR_mod_multiple
 
 export add_data!
 

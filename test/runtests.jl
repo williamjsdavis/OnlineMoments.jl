@@ -97,74 +97,102 @@ end
 @testset "OHBR (single)" begin
     X_stream = stream_data(X_small)
 
-    hbr_single = OHBR_single(x_edges)
+    ohbr_single = OHBR_single(x_edges)
     @testset "Structs" begin
-        @test hbr_single.edges == x_edges
-        @test size(hbr_single.N) == (N_x,)
-        @test size(hbr_single.M1) == (N_x,)
-        @test size(hbr_single.M2) == (N_x,)
-        @test size(hbr_single.mem) == ()
+        @test ohbr_single.edges == x_edges
+        @test size(ohbr_single.N) == (N_x,)
+        @test size(ohbr_single.M1) == (N_x,)
+        @test size(ohbr_single.M2) == (N_x,)
+        @test size(ohbr_single.mem) == ()
     end
 
     for _ in 1:N_data
-        add_data!(hbr_single, X_stream())
+        add_data!(ohbr_single, X_stream())
     end
     @testset "Moments" begin
         # This streaming algorithm should be identical to algorithm C
-        @test all(hbr_single.M1 .== M1_ref_C[1,:])
-        @test all(hbr_single.M2 .== M2_ref_C[1,:])
+        @test all(ohbr_single.M1 .== M1_ref_C[1,:])
+        @test all(ohbr_single.M2 .== M2_ref_C[1,:])
     end
 end
 
 @testset "OHBR (single, mod)" begin
     X_stream = stream_data(X_small)
 
-    hbr_mod_single = OHBR_mod_single(x_edges, modulo_period_large)
+    ohbr_mod_single = OHBR_mod_single(x_edges, modulo_period_large)
     @testset "Structs" begin
-        @test hbr_mod_single.edges == x_edges
-        @test hbr_mod_single.period == modulo_period_large
-        @test size(hbr_mod_single.N) == (N_x,)
-        @test size(hbr_mod_single.M1) == (N_x,)
-        @test size(hbr_mod_single.M2) == (N_x,)
-        @test size(hbr_mod_single.mem) == ()
+        @test ohbr_mod_single.edges == x_edges
+        @test ohbr_mod_single.period == modulo_period_large
+        @test size(ohbr_mod_single.N) == (N_x,)
+        @test size(ohbr_mod_single.M1) == (N_x,)
+        @test size(ohbr_mod_single.M2) == (N_x,)
+        @test size(ohbr_mod_single.mem) == ()
     end
 
     for _ in 1:N_data
-        add_data!(hbr_mod_single, X_stream())
+        add_data!(ohbr_mod_single, X_stream())
     end
     @testset "Moments" begin
         # Algorithms C and streaming "mod" give identical results, for large mod period
-        @test all(hbr_mod_single.M1 .== M1_ref_C[1,:])
-        @test all(hbr_mod_single.M2 .== M2_ref_C[1,:])
+        @test all(ohbr_mod_single.M1 .== M1_ref_C[1,:])
+        @test all(ohbr_mod_single.M2 .== M2_ref_C[1,:])
 
         # Test for translational invariance,
         # for translation = k*period, k>>1
-        @test all(hbr_mod_single.M1 .≈ M1_ref_mod_shift[1,:])
-        @test all(hbr_mod_single.M2 .≈ M2_ref_mod_shift[1,:])
+        @test all(ohbr_mod_single.M1 .≈ M1_ref_mod_shift[1,:])
+        @test all(ohbr_mod_single.M2 .≈ M2_ref_mod_shift[1,:])
     end
 end
 
 @testset "OHBR (multiple)" begin
     X_stream = stream_data(X_small)
 
-    hbr_multiple = OHBR_multiple(x_edges, tau_i_range)
+    ohbr_multiple = OHBR_multiple(x_edges, tau_i_range)
     @testset "Structs" begin
-        @test hbr_multiple.edges == x_edges
-        @test size(hbr_multiple.N) == (N_tau, N_x)
-        @test size(hbr_multiple.M1) == (N_tau, N_x)
-        @test size(hbr_multiple.M2) == (N_tau, N_x)
-        @test size(hbr_multiple.mem) == (N_tau,)
+        @test ohbr_multiple.edges == x_edges
+        @test ohbr_multiple.tau_i == tau_i_range
+        @test size(ohbr_multiple.N) == (N_tau, N_x)
+        @test size(ohbr_multiple.M1) == (N_tau, N_x)
+        @test size(ohbr_multiple.M2) == (N_tau, N_x)
+        @test size(ohbr_multiple.mem) == (N_tau,)
     end
 
     for _ in 1:N_data
-        add_data!(hbr_multiple, X_stream())
+        add_data!(ohbr_multiple, X_stream())
     end
     @testset "Moments" begin
         # This streaming algorithm should be identical to algorithm C
-        @test all(hbr_multiple.M1[1,:] .== M1_ref_C[1,:])
-        @test all(hbr_multiple.M2[1,:] .== M2_ref_C[1,:])
-        @test all(hbr_multiple.M1 .== M1_ref_C)
-        @test all(hbr_multiple.M2 .== M2_ref_C)
+        @test all(ohbr_multiple.M1 .== M1_ref_C)
+        @test all(ohbr_multiple.M2 .== M2_ref_C)
+    end
+end
+
+@testset "OHBR (multiple, mod)" begin
+    X_stream = stream_data(X_small)
+
+    ohbr_mod_multiple = OHBR_mod_multiple(x_edges, tau_i_range, modulo_period_large)
+    @testset "Structs" begin
+        @test ohbr_mod_multiple.edges == x_edges
+        @test ohbr_mod_multiple.tau_i == tau_i_range
+        @test ohbr_mod_multiple.period == modulo_period_large
+        @test size(ohbr_mod_multiple.N) == (N_tau, N_x)
+        @test size(ohbr_mod_multiple.M1) == (N_tau, N_x)
+        @test size(ohbr_mod_multiple.M2) == (N_tau, N_x)
+        @test size(ohbr_mod_multiple.mem) == (N_tau,)
+    end
+
+    for _ in 1:N_data
+        add_data!(ohbr_mod_multiple, X_stream())
+    end
+    @testset "Moments" begin
+        # Algorithms C and streaming "mod" give identical results, for large mod period
+        @test all(ohbr_mod_multiple.M1 .== M1_ref_C)
+        @test all(ohbr_mod_multiple.M2 .== M2_ref_C)
+
+        # Test for translational invariance,
+        # for translation = k*period, k>>1
+        @test all(ohbr_mod_multiple.M1 .≈ M1_ref_mod_shift)
+        @test all(ohbr_mod_multiple.M2 .≈ M2_ref_mod_shift)
     end
 end
 
@@ -244,22 +272,22 @@ end
     hinv = inv(h)
     kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
 
-    kbr_single = OKBR_single(x_centers, kernel_scaled)
+    okbr_single = OKBR_single(x_centers, kernel_scaled)
     @testset "Structs" begin
-        @test kbr_single.x_eval_points == x_centers
-        @test size(kbr_single.w) == (N_x,)
-        @test size(kbr_single.M1) == (N_x,)
-        @test size(kbr_single.M2) == (N_x,)
-        @test size(kbr_single.mem) == ()
+        @test okbr_single.x_eval_points == x_centers
+        @test size(okbr_single.w) == (N_x,)
+        @test size(okbr_single.M1) == (N_x,)
+        @test size(okbr_single.M2) == (N_x,)
+        @test size(okbr_single.mem) == ()
     end
 
     for _ in 1:N_data
-        add_data!(kbr_single, X_stream())
+        add_data!(okbr_single, X_stream())
     end
     @testset "Moments" begin
         # This streaming algorithm and algorithm A should be almost the same
-        @test all(kbr_single.M1 .≈ M1_K_ref_A[1,:])
-        @test all(kbr_single.M2 .≈ M2_K_ref_A[1,:])
+        @test all(okbr_single.M1 .≈ M1_K_ref_A[1,:])
+        @test all(okbr_single.M2 .≈ M2_K_ref_A[1,:])
 
     end
 end
@@ -301,28 +329,28 @@ end
     hinv = inv(h)
     kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
 
-    hbr_single = OHBR_single(x_edges)
-    kbr_single = OKBR_single(x_centers, kernel_scaled)
+    ohbr_single = OHBR_single(x_edges)
+    okbr_single = OKBR_single(x_centers, kernel_scaled)
 
-    hbr_multiple = OHBR_multiple(x_edges, tau_i_range)
+    ohbr_multiple = OHBR_multiple(x_edges, tau_i_range)
 
     for _ in 1:N_data
         X_data = X_stream()
-        add_data!(hbr_single, X_data)
-        add_data!(kbr_single, X_data)
-        add_data!(hbr_multiple, X_data)
+        add_data!(ohbr_single, X_data)
+        add_data!(okbr_single, X_data)
+        add_data!(ohbr_multiple, X_data)
     end
     @testset "Moments" begin
         #
-        @test all(hbr_single.M1 .≈ kbr_single.M1)
-        @test all(hbr_single.M2 .≈ kbr_single.M2)
+        @test all(ohbr_single.M1 .≈ okbr_single.M1)
+        @test all(ohbr_single.M2 .≈ okbr_single.M2)
 
         #
-        @test all(hbr_single.M1 .== hbr_multiple.M1[1,:])
-        @test all(hbr_single.M2 .== hbr_multiple.M2[1,:])
+        @test all(ohbr_single.M1 .== ohbr_multiple.M1[1,:])
+        @test all(ohbr_single.M2 .== ohbr_multiple.M2[1,:])
 
         #
-        @test all(kbr_single.M1 .≈ hbr_multiple.M1[1,:])
-        @test all(kbr_single.M2 .≈ hbr_multiple.M2[1,:])
+        @test all(okbr_single.M1 .≈ ohbr_multiple.M1[1,:])
+        @test all(okbr_single.M2 .≈ ohbr_multiple.M2[1,:])
     end
 end

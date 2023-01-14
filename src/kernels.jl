@@ -20,8 +20,21 @@ function (k::Epaneknikov)(x)
     end
 end
 
+apply_kernel(x::Float64, k::Epaneknikov, hinv) = hinv*apply_kernel(hinv*x, k)
+function apply_kernel(x::Float64, ::Epaneknikov)
+    x2 = x*x
+    if x2 < 5.0
+        return epan_scale*(5.0 - x2)
+    else
+        return 0.0
+    end
+end
+
 # Boxcar
 struct Boxcar <: Kernel
 end
 
 (k::Boxcar)(x) = (abs(x) < 1.0) ? 0.5 : 0.0
+
+apply_kernel(x::Float64, k::Boxcar, hinv) = hinv*apply_kernel(hinv*x, k)
+apply_kernel(x::Float64, ::Boxcar) = (abs(x) < 1.0) ? 0.5 : 0.0

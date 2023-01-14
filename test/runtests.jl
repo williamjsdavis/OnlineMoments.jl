@@ -269,7 +269,8 @@ end
     hinv = inv(h)
     kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
 
-    okbr_single = OKBR_single(x_centers, kernel_scaled)
+    #okbr_single = OKBR_single(x_centers, kernel_scaled)
+    okbr_single = OKBR_single(x_centers, kernel_boxcar, h)
     @testset "Structs" begin
         @test okbr_single.x_eval_points == x_centers
         @test size(okbr_single.w) == (N_x,)
@@ -295,7 +296,8 @@ end
     hinv = inv(h)
     kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
 
-    kbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
+    #kbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
+    kbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_boxcar, h)
     @testset "Structs" begin
         @test kbr_multiple.x_eval_points == x_centers
         @test size(kbr_multiple.w) == (N_tau, N_x)
@@ -324,11 +326,13 @@ end
 
     ohbr_single = OHBR_single(x_edges)
     ohbr_mod_single = OHBR_mod_single(x_edges, modulo_period_large)
-    okbr_single = OKBR_single(x_centers, kernel_scaled)
+    #okbr_single = OKBR_single(x_centers, kernel_scaled)
+    okbr_single = OKBR_single(x_centers, kernel_boxcar, h)
 
     ohbr_multiple = OHBR_multiple(x_edges, tau_i_range)
     ohbr_mod_multiple = OHBR_mod_multiple(x_edges, tau_i_range, modulo_period_large)
-    okbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
+    #okbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
+    okbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_boxcar, h)
 
     for _ in 1:N_data
         X_data = X_stream()

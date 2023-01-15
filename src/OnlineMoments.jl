@@ -19,11 +19,14 @@ export OHBR_single, OHBR_multiple
 export OKBR_single, OKBR_multiple
 export OHBR_mod_single, OHBR_mod_multiple
 
+# Online Welford methods
+export OHBR_welford_single
+export M2
+
+# Functions
 export add_data!
 
 export M1τ, M2τ
-
-greet() = print("Hello World!")
 
 include("utils.jl")
 include("statistics.jl")
@@ -31,6 +34,7 @@ include("kernels.jl")
 include("HBR.jl")
 include("KBR.jl")
 include("OHBR.jl")
+include("OHBR_welford.jl")
 include("OKBR.jl")
 
 end # module

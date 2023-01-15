@@ -196,6 +196,9 @@ end
     end
 end
 
+# Welford tests
+include("./testwelford.jl")
+
 ## Kernels
 include("./testkernels.jl")
 

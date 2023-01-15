@@ -87,8 +87,8 @@ function OKBR_multiple(x_eval_points, tau_i, kernel, h::Float64)
 end
 
 # Scaled moments
-M1τ(ohbr::OKBR_multiple, dt) = ohbr.M1 ./ (dt*ohbr.tau_i)
-M2τ(ohbr::OKBR_multiple, dt) = ohbr.M2 ./ (dt*ohbr.tau_i)
+M1τ(okbr::OKBR_multiple, dt) = okbr.M1 ./ (dt*okbr.tau_i)
+M2τ(okbr::OKBR_multiple, dt) = okbr.M2 ./ (dt*okbr.tau_i)
 
 # Add data to moments
 function add_data!(okbr::OKBR_multiple, X_right)

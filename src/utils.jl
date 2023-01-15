@@ -8,9 +8,12 @@ in_range(r::StepRangeLen, x::Real) = (x >= first(r)) && (x <= last(r))
 find_bin(r::StepRangeLen, x::Real) = floor(Int, ((x-first(r))/(last(r)-first(r))*(length(r) - 1) + 1))
 
 # Modulo binning
+
 d_plus(a,b,n) = mod(b-a,n)
+
 "Half-open interval"
 is_in_interval_mod(a,b,n,x) = d_plus(a,x,n) < d_plus(a,b,n)
+
 function find_mod_bin(edge_vector, n, X)
     for (i,a) in enumerate(edge_vector[1:end-1])
         b = edge_vector[i+1]
@@ -21,7 +24,7 @@ function find_mod_bin(edge_vector, n, X)
     return 0
 end
 
-# Modulo distance
+"Distance in mod n space"
 d_mod(x,n) = min(mod(x,n),mod(-x,n))
 
 # Test

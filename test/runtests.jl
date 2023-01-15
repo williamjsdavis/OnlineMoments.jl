@@ -1,7 +1,7 @@
 using OnlineMoments
 using FileIO
 using Test
-include("./testutils.jl")
+include("./utils_for_tests.jl")
 
 #TODO: Write some tests for skipping tau (e.g. [2,4,6])
 
@@ -29,339 +29,59 @@ h = 0.5*step(x_centers)
 kernel_boxcar = Boxcar()
 kernel_epan = Epaneknikov()
 
+## Initial tests
+include("./test_utils.jl")
+include("./test_kernels.jl")
+
 ## Histogram Based Regression, 1D (normal methods)
 
+# Data, original
 M1_ref_A, M2_ref_A = HBR_moments_A(X_small, tau_i_range, x_edges)
 #M1_ref_A2, M2_ref_A2 = HBR_moments_A2(X_small, tau_i_range, x_edges) # Bad method
 M1_ref_B, M2_ref_B = HBR_moments_B(X_small, tau_i_range, x_edges)
 M1_ref_C, M2_ref_C = HBR_moments_C(X_small, tau_i_range, x_edges)
 M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
 
-# Modulo moments
+# Data, original, modulo
 M1_ref_mod, M2_ref_mod =
     HBR_moments_mod(X_small, tau_i_range, x_edges, modulo_period_large)
 M1_ref_mod_shift, M2_ref_mod_shift =
     HBR_moments_mod(X_shift, tau_i_range, x_edges, modulo_period_large)
 
-@testset "HBR moments" begin
-    @testset "Size" begin
-        @test size(M1_ref_A) == (N_tau, N_x)
-        @test size(M2_ref_A) == (N_tau, N_x)
-        @test size(M1_ref_B) == (N_tau, N_x)
-        @test size(M2_ref_B) == (N_tau, N_x)
-        @test size(M1_ref_C) == (N_tau, N_x)
-        @test size(M2_ref_C) == (N_tau, N_x)
-        @test size(M1_ref_C2) == (N_tau, N_x)
-        @test size(M2_ref_C2) == (N_tau, N_x)
-        @test size(M1_ref_mod) == (N_tau, N_x)
-        @test size(M2_ref_mod) == (N_tau, N_x)
-        @test size(M2_ref_mod_shift) == (N_tau, N_x)
-        @test size(M2_ref_mod_shift) == (N_tau, N_x)
-    end
-
-    @testset "Values" begin
-        # Algorithms A and B give different results
-        @test !all(M1_ref_A .≈ M1_ref_B)
-        @test !all(M2_ref_A .≈ M2_ref_B)
-
-        # Algorithms A and C give almost the same results
-        @test all(M1_ref_A .≈ M1_ref_C)
-        @test all(M2_ref_A .≈ M2_ref_C)
-
-        # Algorithms C and C2 give identical results
-        @test all(M1_ref_C .== M1_ref_C2)
-        @test all(M2_ref_C .== M2_ref_C2)
-
-        # Modulo moments
-        # Algorithms C and "mod" give identical results, for large mod period
-        @test all(M1_ref_C .== M1_ref_mod)
-        @test all(M2_ref_C .== M2_ref_mod)
-
-        # Test for translational invariance,
-        # for translation = k*period, k>>1
-        @test all(M1_ref_mod .≈ M1_ref_mod_shift)
-        @test all(M2_ref_mod .≈ M2_ref_mod_shift)
-    end
-end
+# Run tests
+include("./test_HBR.jl")
 
 ## Online Histogram Based Regression, 1D (online methods)
 
-@testset "Streaming data" begin
-    X_stream = stream_data(X_small)
-
-    @test X_small[1] == X_stream()
-    @test X_small[2] == X_stream()
-    @test X_small[3] == X_stream()
-end
-
-@testset "OHBR (single)" begin
-    X_stream = stream_data(X_small)
-
-    ohbr_single = OHBR_single(x_edges)
-    @testset "Structs" begin
-        @test ohbr_single.edges == x_edges
-        @test size(ohbr_single.N) == (N_x,)
-        @test size(ohbr_single.M1) == (N_x,)
-        @test size(ohbr_single.M2) == (N_x,)
-        @test size(ohbr_single.mem) == ()
-    end
-
-    for _ in 1:N_data
-        add_data!(ohbr_single, X_stream())
-    end
-    @testset "Moments" begin
-        # This streaming algorithm should be identical to algorithm C
-        @test all(ohbr_single.M1 .== M1_ref_C[1,:])
-        @test all(ohbr_single.M2 .== M2_ref_C[1,:])
-    end
-end
-
-@testset "OHBR (single, mod)" begin
-    X_stream = stream_data(X_small)
-
-    ohbr_mod_single = OHBR_mod_single(x_edges, modulo_period_large)
-    @testset "Structs" begin
-        @test ohbr_mod_single.edges == x_edges
-        @test ohbr_mod_single.period == modulo_period_large
-        @test size(ohbr_mod_single.N) == (N_x,)
-        @test size(ohbr_mod_single.M1) == (N_x,)
-        @test size(ohbr_mod_single.M2) == (N_x,)
-        @test size(ohbr_mod_single.mem) == ()
-    end
-
-    for _ in 1:N_data
-        add_data!(ohbr_mod_single, X_stream())
-    end
-    @testset "Moments" begin
-        # Algorithms C and streaming "mod" give identical results, for large mod period
-        @test all(ohbr_mod_single.M1 .== M1_ref_C[1,:])
-        @test all(ohbr_mod_single.M2 .== M2_ref_C[1,:])
-
-        # Test for translational invariance,
-        # for translation = k*period, k>>1
-        @test all(ohbr_mod_single.M1 .≈ M1_ref_mod_shift[1,:])
-        @test all(ohbr_mod_single.M2 .≈ M2_ref_mod_shift[1,:])
-    end
-end
-
-@testset "OHBR (multiple)" begin
-    X_stream = stream_data(X_small)
-
-    ohbr_multiple = OHBR_multiple(x_edges, tau_i_range)
-    @testset "Structs" begin
-        @test ohbr_multiple.edges == x_edges
-        @test ohbr_multiple.tau_i == tau_i_range
-        @test size(ohbr_multiple.N) == (N_tau, N_x)
-        @test size(ohbr_multiple.M1) == (N_tau, N_x)
-        @test size(ohbr_multiple.M2) == (N_tau, N_x)
-        @test size(ohbr_multiple.mem) == (N_tau,)
-    end
-
-    for _ in 1:N_data
-        add_data!(ohbr_multiple, X_stream())
-    end
-    @testset "Moments" begin
-        # This streaming algorithm should be identical to algorithm C
-        @test all(ohbr_multiple.M1 .== M1_ref_C)
-        @test all(ohbr_multiple.M2 .== M2_ref_C)
-    end
-end
-
-@testset "OHBR (multiple, mod)" begin
-    X_stream = stream_data(X_small)
-
-    ohbr_mod_multiple = OHBR_mod_multiple(x_edges, tau_i_range, modulo_period_large)
-    @testset "Structs" begin
-        @test ohbr_mod_multiple.edges == x_edges
-        @test ohbr_mod_multiple.tau_i == tau_i_range
-        @test ohbr_mod_multiple.period == modulo_period_large
-        @test size(ohbr_mod_multiple.N) == (N_tau, N_x)
-        @test size(ohbr_mod_multiple.M1) == (N_tau, N_x)
-        @test size(ohbr_mod_multiple.M2) == (N_tau, N_x)
-        @test size(ohbr_mod_multiple.mem) == (N_tau,)
-    end
-
-    for _ in 1:N_data
-        add_data!(ohbr_mod_multiple, X_stream())
-    end
-    @testset "Moments" begin
-        # Algorithms C and streaming "mod" give identical results, for large mod period
-        @test all(ohbr_mod_multiple.M1 .== M1_ref_C)
-        @test all(ohbr_mod_multiple.M2 .== M2_ref_C)
-
-        # Test for translational invariance,
-        # for translation = k*period, k>>1
-        @test all(ohbr_mod_multiple.M1 .≈ M1_ref_mod_shift)
-        @test all(ohbr_mod_multiple.M2 .≈ M2_ref_mod_shift)
-    end
-end
+# Original tests
+include("./test_OHBR.jl")
 
 # Welford tests
-include("./testwelford.jl")
-
-## Kernels
-include("./testkernels.jl")
+include("./test_welford.jl")
 
 ## Kernel Based Regression, 1D (normal methods)
 
-# Boxcar kernel (can compare)
+# Data, boxcar kernel (can compare)
 M1_K_ref_A, M2_K_ref_A = KBR_moments_A(X_small, tau_i_range, x_centers, h, kernel_boxcar)
 M1_K_ref_A2, M2_K_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, kernel_boxcar)
 
-# Boxcar kernel: modulo moments
+# Data, boxcar kernel, modulo
 M1_K_ref_mod, M2_K_ref_mod =
     KBR_moments_mod(X_small, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
 M1_K_ref_mod_shift, M2_K_ref_mod_shift =
     KBR_moments_mod(X_shift, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
 
-# Epaneknikov kernel (cannot validate)
+# Data epaneknikov kernel (cannot validate)
 M1_KE_ref_A, M2_KE_ref_A = KBR_moments_A(X_small, tau_i_range, x_centers, h, kernel_epan)
 M1_KE_ref_A2, M2_KE_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, kernel_epan)
 
-@testset "KBR moments" begin
-    @testset "Size" begin
-        @test size(M1_K_ref_A) == (N_tau, N_x)
-        @test size(M2_K_ref_A) == (N_tau, N_x)
-        @test size(M1_K_ref_A2) == (N_tau, N_x)
-        @test size(M2_K_ref_A2) == (N_tau, N_x)
-        @test size(M1_KE_ref_A) == (N_tau, N_x)
-        @test size(M2_KE_ref_A) == (N_tau, N_x)
-        @test size(M1_KE_ref_A2) == (N_tau, N_x)
-        @test size(M2_KE_ref_A2) == (N_tau, N_x)
-        @test size(M1_K_ref_mod) == (N_tau, N_x)
-        @test size(M2_K_ref_mod) == (N_tau, N_x)
-        @test size(M1_K_ref_mod_shift) == (N_tau, N_x)
-        @test size(M2_K_ref_mod_shift) == (N_tau, N_x)
-    end
-
-    @testset "Values" begin
-        # Algorithms A and A2 give identical results
-        @test all(M1_K_ref_A .== M1_K_ref_A2)
-        @test all(M2_K_ref_A .== M2_K_ref_A2)
-        @test all(M1_KE_ref_A .== M1_KE_ref_A2)
-        @test all(M2_KE_ref_A .== M2_KE_ref_A2)
-
-        # Algorithm A gives almost the same results as (HBR) C
-        #NOTE: I should highlight that this is a regression test...
-        #NOTE: Make it its own section?
-        @test all(M1_K_ref_A .≈ M1_ref_C)
-        @test all(M2_K_ref_A .≈ M2_ref_C)
-
-        # Modulo moments
-        # Algorithms A and "mod" give identical results, for large mod period
-        @test all(M1_K_ref_A .== M1_K_ref_mod)
-        @test all(M2_K_ref_A .== M2_K_ref_mod)
-
-        # Algorithm "mod" gives almost the same results as (HBR) C
-        #NOTE: Same comment as above
-        @test all(M1_K_ref_mod .≈ M1_ref_C)
-        @test all(M2_K_ref_mod .≈ M2_ref_C)
-
-        # Test for translational invariance,
-        # for translation = k*period, k>>1
-        @test all(M1_K_ref_mod .≈ M1_K_ref_mod_shift)
-        @test all(M2_K_ref_mod .≈ M2_K_ref_mod_shift)
-    end
-end
+# Run tests
+include("./test_KBR.jl")
 
 ## Online Kernel Based Regression, 1D (online methods)
 
-@testset "OKBR (single)" begin
-    X_stream = stream_data(X_small)
-
-    hinv = inv(h)
-    kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
-
-    #okbr_single = OKBR_single(x_centers, kernel_scaled)
-    okbr_single = OKBR_single(x_centers, kernel_boxcar, h)
-    @testset "Structs" begin
-        @test okbr_single.x_eval_points == x_centers
-        @test size(okbr_single.w) == (N_x,)
-        @test size(okbr_single.M1) == (N_x,)
-        @test size(okbr_single.M2) == (N_x,)
-        @test size(okbr_single.mem) == ()
-    end
-
-    for _ in 1:N_data
-        add_data!(okbr_single, X_stream())
-    end
-    @testset "Moments" begin
-        # This streaming algorithm and algorithm A should be almost the same
-        @test all(okbr_single.M1 .≈ M1_K_ref_A[1,:])
-        @test all(okbr_single.M2 .≈ M2_K_ref_A[1,:])
-
-    end
-end
-
-@testset "OKBR (multiple)" begin
-    X_stream = stream_data(X_small)
-
-    hinv = inv(h)
-    kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
-
-    #kbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
-    kbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_boxcar, h)
-    @testset "Structs" begin
-        @test kbr_multiple.x_eval_points == x_centers
-        @test size(kbr_multiple.w) == (N_tau, N_x)
-        @test size(kbr_multiple.M1) == (N_tau, N_x)
-        @test size(kbr_multiple.M2) == (N_tau, N_x)
-        @test size(kbr_multiple.mem) == (N_tau,)
-    end
-
-    for _ in 1:N_data
-        add_data!(kbr_multiple, X_stream())
-    end
-    @testset "Moments" begin
-        # This streaming algorithm and algorithm A should be almost the same
-        @test all(kbr_multiple.M1 .≈ M1_K_ref_A)
-        @test all(kbr_multiple.M2 .≈ M2_K_ref_A)
-    end
-end
+include("./test_OKBR.jl")
 
 ## Comparing online algorithms
 
-@testset "Comparing online algorithms" begin
-    X_stream = stream_data(X_small)
-
-    hinv = inv(h)
-    kernel_scaled(x) = hinv*kernel_boxcar(hinv*x)
-
-    ohbr_single = OHBR_single(x_edges)
-    ohbr_mod_single = OHBR_mod_single(x_edges, modulo_period_large)
-    #okbr_single = OKBR_single(x_centers, kernel_scaled)
-    okbr_single = OKBR_single(x_centers, kernel_boxcar, h)
-
-    ohbr_multiple = OHBR_multiple(x_edges, tau_i_range)
-    ohbr_mod_multiple = OHBR_mod_multiple(x_edges, tau_i_range, modulo_period_large)
-    #okbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_scaled)
-    okbr_multiple = OKBR_multiple(x_centers, tau_i_range, kernel_boxcar, h)
-
-    for _ in 1:N_data
-        X_data = X_stream()
-        add_data!(ohbr_single, X_data)
-        add_data!(ohbr_mod_single, X_data)
-        add_data!(okbr_single, X_data)
-
-        add_data!(ohbr_multiple, X_data)
-        add_data!(ohbr_mod_multiple, X_data)
-        add_data!(okbr_multiple, X_data)
-    end
-    @testset "Moments" begin
-        # Boxcar kernel is almost the same as OHBR, single
-        @test all(ohbr_single.M1 .≈ okbr_single.M1)
-        @test all(ohbr_single.M2 .≈ okbr_single.M2)
-
-        # Boxcar kernel is almost the same as OHBR, single
-        @test all(ohbr_multiple.M1 .≈ okbr_multiple.M1)
-        @test all(ohbr_multiple.M2 .≈ okbr_multiple.M2)
-
-        # First slice of OHBR multiple regresses to OHBR single
-        @test all(ohbr_single.M1 .== ohbr_multiple.M1[1,:])
-        @test all(ohbr_single.M2 .== ohbr_multiple.M2[1,:])
-
-        # First slice of OKBR multiple regresses to OKBR single
-        @test all(okbr_single.M1 .== okbr_multiple.M1[1,:])
-        @test all(okbr_single.M2 .== okbr_multiple.M2[1,:])
-    end
-end
+include("./compare_online.jl")

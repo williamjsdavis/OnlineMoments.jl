@@ -1,4 +1,4 @@
-# Testing Welford algorithms
+# Testing Welford streaming algorithms
 
 ## Online Histogram Based Regression, 1D (online methods)
 

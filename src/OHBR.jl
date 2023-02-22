@@ -51,6 +51,7 @@ end
 
 ## Multi step algorithm, 1D
 
+#TODO: generalize tau_i
 mutable struct OHBR_multiple{T<:AbstractRange}
     edges::T
     tau_i::UnitRange{Int}
@@ -61,7 +62,6 @@ mutable struct OHBR_multiple{T<:AbstractRange}
     bin_mem::Array{Int64,1}
 end
 function OHBR_multiple(x_range, tau_i)
-    #TODO: generalize to array not starting at 1
     Nx = length(x_range) - 1
     τ_len = length(tau_i)
     mem = zeros(Float64, τ_len)
@@ -81,7 +81,7 @@ end
 M1τ(ohbr::OHBR_multiple, dt) = ohbr.M1 ./ (dt*ohbr.tau_i)
 M2τ(ohbr::OHBR_multiple, dt) = ohbr.M2 ./ (dt*ohbr.tau_i)
 
-    # Add data to moments
+# Add data to moments
 function add_data!(ohbr::OHBR_multiple, X_right)
     for (i_tau, j_bin) in enumerate(ohbr.bin_mem) if j_bin != 0
         X_left = ohbr.mem[i_tau]

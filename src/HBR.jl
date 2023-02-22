@@ -150,3 +150,40 @@ function HBR_moments_C2(X, tau_vector, edge_vector)
 
     return M1, M2
 end
+
+## Modulo moments
+function HBR_moments_mod(X, tau_vector, edge_vector, period)
+    nτ = length(tau_vector)
+    nx = length(edge_vector) - 1
+    nX = length(X)
+    N = zeros(nτ,nx)
+    M1 = zeros(nτ,nx)
+    M2 = zeros(nτ,nx)
+    mem = 0.0
+
+    for (i_left, X_left) in enumerate(X[1:end-1])
+        k = find_mod_bin(edge_vector, period, X_left)
+        if k != 0
+            for (j,tau) in enumerate(tau_vector)
+                ii = i_left + j
+                if ii <= nX
+                    ΔX = X[ii] - X_left
+                    mem = M1[j, k]
+                    setindex!(N, N[j,k] + 1, j, k)
+                    setindex!(
+                        M1,
+                        update_mean(M1[j, k], ΔX, N[j, k]),
+                        j, k
+                    )
+                    setindex!(
+                        M2,
+                        update_var(M2[j, k], M1[j, k], mem, ΔX, N[j, k]),
+                        j, k
+                    )
+                end
+            end
+        end
+    end
+
+    return M1, M2
+end

@@ -1,6 +1,7 @@
 module OnlineMoments
 
 # using Statistics: mean
+using OnlineStats: AutoCov, fit!, autocov
 
 # Kernels
 export Epaneknikov, Boxcar
@@ -25,6 +26,10 @@ export OKBR_mod_single, OKBR_mod_multiple
 export OHBR_welford_single
 export M2
 
+# Autocorrelation
+export offline_autocorr, online_autocorr
+export AutoCov
+
 # Functions
 export add_data!
 
@@ -39,5 +44,6 @@ include("OHBR.jl")
 include("OHBR_welford.jl")
 include("OKBR.jl")
 include("XKBR_mod.jl")
+include("autocorr.jl")
 
 end # module

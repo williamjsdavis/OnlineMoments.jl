@@ -24,10 +24,15 @@
         @test all(M2_K_ref_A .== M2_K_ref_A2)
         @test all(M1_KE_ref_A .== M1_KE_ref_A2)
         @test all(M2_KE_ref_A .== M2_KE_ref_A2)
-
-        # Algorithm A gives almost the same results as (HBR) C
+        
+        # Algorithm A gives almost the same results as (HBR) A
         #NOTE: I should highlight that this is a regression test...
         #NOTE: Make it its own section?
+        @test all(M1_K_ref_A .≈ M1_ref_A)
+        @test all(M2_K_ref_A .≈ M2_ref_A)
+
+        # Algorithm A gives almost the same results as (HBR) C
+        #NOTE: Same comment as last...
         @test all(M1_K_ref_A .≈ M1_ref_C)
         @test all(M2_K_ref_A .≈ M2_ref_C)
 

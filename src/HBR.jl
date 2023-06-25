@@ -56,6 +56,7 @@ function get_moments(X, iX, tau)
     return M1, M2
 end
 
+#TODO: Fix badly labelled variables here
 # Algorithm C: Loop over X elements
 function HBR_moments_C(X, tau_vector, edge_vector)
     nτ = length(tau_vector)

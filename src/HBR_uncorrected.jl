@@ -54,6 +54,7 @@ function get_moments_uncorrected(X, iX, tau)
     return M1, M2
 end
 
+#TODO: Fix badly labelled variables here
 # Algorithm C: Loop over X elements (no variance correction)
 function HBRu_moments_C(X, tau_vector, edge_vector)
     nτ = length(tau_vector)
@@ -109,8 +110,6 @@ function HBRu_moments_C2(X, tau_vector, edge_vector)
             j_bin = b[i_left]
             if j_bin != 0
                 ΔX = X[i_left+i_tau] - X_left
-                M1_old = M1[i_ind, j_bin]
-
                 setindex!(N, N[i_ind, j_bin] + 1, i_ind, j_bin)
                 setindex!(
                     M1,
@@ -119,7 +118,7 @@ function HBRu_moments_C2(X, tau_vector, edge_vector)
                 )
                 setindex!(
                     M2,
-                    update_var(M2[i_ind, j_bin], M1[i_ind, j_bin], M1_old, ΔX, N[i_ind, j_bin]),
+                    update_ss(M1[i_ind, j_bin], ΔX, N[i_ind, j_bin]),
                     i_ind, j_bin
                 )
             end

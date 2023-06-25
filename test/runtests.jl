@@ -46,6 +46,7 @@ M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
 M1_u_ref_A, M2_u_ref_A = HBRu_moments_A(X_small, tau_i_range, x_edges)
 M1_u_ref_B, M2_u_ref_B = HBRu_moments_B(X_small, tau_i_range, x_edges)
 M1_u_ref_C, M2_u_ref_C = HBRu_moments_C(X_small, tau_i_range, x_edges)
+M1_u_ref_C2, M2_u_ref_C2 = HBRu_moments_C2(X_small, tau_i_range, x_edges)
 
 # Data, original, modulo
 M1_ref_mod, M2_ref_mod =

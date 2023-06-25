@@ -156,7 +156,7 @@ function add_data!(okbr::OKBRu_mod_single, X_right)
                 )
                 setindex!(
                     okbr.M2,
-                    update_wss(okbr.M1[j_ind], w_old, ΔX, K_weight),
+                    update_wss(okbr.M2[j_ind], w_old, ΔX, K_weight),
                     j_ind
                 )
             end

@@ -110,6 +110,7 @@ include("./test_KBR_uncorrected.jl")
 ## Online Kernel Based Regression, 1D (online methods)
 
 include("./test_OKBR.jl")
+include("./test_OKBR_uncorrected.jl")
 
 ## Comparing online algorithms
 

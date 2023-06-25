@@ -153,7 +153,7 @@ function HBRu_moments_mod(X, tau_vector, edge_vector, period)
                     )
                     setindex!(
                         M2,
-                        update_ss(M1[j, k], ΔX, N[j, k]),
+                        update_ss(M2[j, k], ΔX, N[j, k]),
                         j, k
                     )
                 end

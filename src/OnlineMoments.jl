@@ -19,6 +19,7 @@ export OKBR_single, OKBR_multiple
 
 # Modulo moments
 export HBR_moments_mod
+export HBRu_moments_mod
 export KBR_moments_mod
 
 export OHBR_mod_single, OHBR_mod_multiple

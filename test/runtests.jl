@@ -54,6 +54,12 @@ M1_ref_mod, M2_ref_mod =
 M1_ref_mod_shift, M2_ref_mod_shift =
     HBR_moments_mod(X_shift, tau_i_range, x_edges, modulo_period_large)
 
+# Data, original, modulo, uncorrected second moment
+M1_u_ref_mod, M2_u_ref_mod =
+    HBRu_moments_mod(X_small, tau_i_range, x_edges, modulo_period_large)
+M1_u_ref_mod_shift, M2_u_ref_mod_shift =
+    HBRu_moments_mod(X_shift, tau_i_range, x_edges, modulo_period_large)
+
 # Run tests
 include("./test_HBR.jl")
 include("./test_HBR_uncorrected.jl")

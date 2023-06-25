@@ -12,12 +12,10 @@
         @test size(M2_u_ref_C) == (N_tau, N_x)
         @test size(M1_u_ref_C2) == (N_tau, N_x)
         @test size(M2_u_ref_C2) == (N_tau, N_x)
-        #=
-        @test size(M1_ref_mod) == (N_tau, N_x)
-        @test size(M2_ref_mod) == (N_tau, N_x)
-        @test size(M2_ref_mod_shift) == (N_tau, N_x)
-        @test size(M2_ref_mod_shift) == (N_tau, N_x)
-        =#
+        @test size(M1_u_ref_mod) == (N_tau, N_x)
+        @test size(M2_u_ref_mod) == (N_tau, N_x)
+        @test size(M2_u_ref_mod_shift) == (N_tau, N_x)
+        @test size(M2_u_ref_mod_shift) == (N_tau, N_x)
     end
 
     @testset "Values" begin
@@ -41,6 +39,13 @@
         @test all(M1_ref_C2 .== M1_u_ref_C2)
         @test !all(M2_ref_C2 .== M2_u_ref_C2)
 
+        # Modulo alg. and uncorrected modulo alg. give the same first moment,
+        # But different second moment
+        @test all(M1_ref_mod .== M1_u_ref_mod)
+        @test !all(M2_ref_mod .== M2_u_ref_mod)
+        @test all(M1_ref_mod_shift .== M1_u_ref_mod_shift)
+        @test !all(M2_ref_mod_shift .== M2_u_ref_mod_shift)
+
         # Algorithms A and B give different results
         @test !all(M1_u_ref_A .≈ M1_u_ref_B)
         @test !all(M2_u_ref_A .≈ M2_u_ref_B)
@@ -53,11 +58,17 @@
         @test all(M1_u_ref_C .== M1_u_ref_C2)
         @test all(M2_u_ref_C .== M2_u_ref_C2)
 
-        #=
-        # Algorithms C and C2 give identical results
-        @test all(M1_ref_C .== M1_ref_C2)
-        @test all(M2_ref_C .== M2_ref_C2)
+        # Modulo moments
+        # Algorithms C and "mod" give identical results, for large mod period
+        @test all(M1_u_ref_C .== M1_u_ref_mod)
+        @test all(M2_u_ref_C .== M2_u_ref_mod)
 
+        # Test for translational invariance,
+        # for translation = k*period, k>>1
+        @test all(M1_u_ref_mod .≈ M1_u_ref_mod_shift)
+        @test all(M2_u_ref_mod .≈ M2_u_ref_mod_shift)
+
+        #=
         # Modulo moments
         # Algorithms C and "mod" give identical results, for large mod period
         @test all(M1_ref_C .== M1_ref_mod)

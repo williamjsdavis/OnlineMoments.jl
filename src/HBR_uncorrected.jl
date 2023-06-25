@@ -118,7 +118,7 @@ function HBRu_moments_C2(X, tau_vector, edge_vector)
                 )
                 setindex!(
                     M2,
-                    update_ss(M1[i_ind, j_bin], ΔX, N[i_ind, j_bin]),
+                    update_ss(M2[i_ind, j_bin], ΔX, N[i_ind, j_bin]),
                     i_ind, j_bin
                 )
             end
@@ -128,6 +128,7 @@ function HBRu_moments_C2(X, tau_vector, edge_vector)
     return M1, M2
 end
 
+#TODO: Fix badly labelled variables here
 ## Modulo moments (no variance correction)
 function HBRu_moments_mod(X, tau_vector, edge_vector, period)
     nτ = length(tau_vector)
@@ -136,7 +137,6 @@ function HBRu_moments_mod(X, tau_vector, edge_vector, period)
     N = zeros(nτ,nx)
     M1 = zeros(nτ,nx)
     M2 = zeros(nτ,nx)
-    mem = 0.0
 
     for (i_left, X_left) in enumerate(X[1:end-1])
         k = find_mod_bin(edge_vector, period, X_left)
@@ -145,7 +145,6 @@ function HBRu_moments_mod(X, tau_vector, edge_vector, period)
                 ii = i_left + j
                 if ii <= nX
                     ΔX = X[ii] - X_left
-                    mem = M1[j, k]
                     setindex!(N, N[j,k] + 1, j, k)
                     setindex!(
                         M1,
@@ -154,7 +153,7 @@ function HBRu_moments_mod(X, tau_vector, edge_vector, period)
                     )
                     setindex!(
                         M2,
-                        update_var(M2[j, k], M1[j, k], mem, ΔX, N[j, k]),
+                        update_ss(M1[j, k], ΔX, N[j, k]),
                         j, k
                     )
                 end

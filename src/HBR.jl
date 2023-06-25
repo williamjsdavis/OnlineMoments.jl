@@ -132,6 +132,7 @@ function HBR_moments_C2(X, tau_vector, edge_vector)
     return M1, M2
 end
 
+#TODO: Fix badly labelled variables here
 ## Modulo moments
 function HBR_moments_mod(X, tau_vector, edge_vector, period)
     nτ = length(tau_vector)

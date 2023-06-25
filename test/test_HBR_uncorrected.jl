@@ -23,6 +23,16 @@
     end
 
     @testset "Values" begin
+        # Algorithms A and uncorrected A give the same first moment,
+        # But different second moment
+        @test all(M1_ref_A .== M1_u_ref_A)
+        @test !all(M2_ref_A .== M2_u_ref_A)
+
+        # Algorithms B and uncorrected B give the same first moment,
+        # But different second moment
+        @test all(M1_ref_B .== M1_u_ref_B)
+        @test !all(M2_ref_B .== M2_u_ref_B)
+
         # Algorithms A and B give different results
         @test !all(M1_u_ref_A .≈ M1_u_ref_B)
         @test !all(M2_u_ref_A .≈ M2_u_ref_B)

@@ -9,7 +9,9 @@ export Epaneknikov, Boxcar
 # Traditional moments
 export HBR_moments_A, HBR_moments_B, HBR_moments_C, HBR_moments_C2
 export KBR_moments_A, KBR_moments_A2
-export HBR_moments_A2 # Remove this
+
+# Uncorrected moments
+export HBRu_moments_A, HBRu_moments_B
 
 # Online moments
 export OHBR_single, OHBR_multiple
@@ -39,6 +41,7 @@ include("utils.jl")
 include("statistics.jl")
 include("kernels.jl")
 include("HBR.jl")
+include("HBR_uncorrected.jl")
 include("KBR.jl")
 include("OHBR.jl")
 include("OHBR_welford.jl")

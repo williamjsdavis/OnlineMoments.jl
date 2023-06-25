@@ -38,10 +38,13 @@ include("./test_kernels.jl")
 
 # Data, original
 M1_ref_A, M2_ref_A = HBR_moments_A(X_small, tau_i_range, x_edges)
-#M1_ref_A2, M2_ref_A2 = HBR_moments_A2(X_small, tau_i_range, x_edges) # Bad method
 M1_ref_B, M2_ref_B = HBR_moments_B(X_small, tau_i_range, x_edges)
 M1_ref_C, M2_ref_C = HBR_moments_C(X_small, tau_i_range, x_edges)
 M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
+
+# Data, original, uncorrected second moment
+M1_u_ref_A, M2_u_ref_A = HBRu_moments_A(X_small, tau_i_range, x_edges)
+M1_u_ref_B, M2_u_ref_B = HBRu_moments_B(X_small, tau_i_range, x_edges)
 
 # Data, original, modulo
 M1_ref_mod, M2_ref_mod =
@@ -51,6 +54,7 @@ M1_ref_mod_shift, M2_ref_mod_shift =
 
 # Run tests
 include("./test_HBR.jl")
+include("./test_HBR_uncorrected.jl")
 
 ## Online Histogram Based Regression, 1D (online methods)
 

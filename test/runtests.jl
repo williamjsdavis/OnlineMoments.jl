@@ -78,18 +78,33 @@ include("./test_welford.jl")
 M1_K_ref_A, M2_K_ref_A = KBR_moments_A(X_small, tau_i_range, x_centers, h, kernel_boxcar)
 M1_K_ref_A2, M2_K_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, kernel_boxcar)
 
+# Data, boxcar kernel (can compare), uncorrected second moment
+M1_Ku_ref_A, M2_Ku_ref_A = KBRu_moments_A(X_small, tau_i_range, x_centers, h, kernel_boxcar)
+M1_Ku_ref_A2, M2_Ku_ref_A2 = KBRu_moments_A2(X_small, tau_i_range, x_centers, h, kernel_boxcar)
+
 # Data, boxcar kernel, modulo
 M1_K_ref_mod, M2_K_ref_mod =
     KBR_moments_mod(X_small, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
 M1_K_ref_mod_shift, M2_K_ref_mod_shift =
     KBR_moments_mod(X_shift, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
 
+# Data, boxcar kernel, modulo, uncorrected second moment
+M1_Ku_ref_mod, M2_Ku_ref_mod =
+    KBRu_moments_mod(X_small, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
+M1_Ku_ref_mod_shift, M2_Ku_ref_mod_shift =
+    KBRu_moments_mod(X_shift, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
+
 # Data epaneknikov kernel (cannot validate)
 M1_KE_ref_A, M2_KE_ref_A = KBR_moments_A(X_small, tau_i_range, x_centers, h, kernel_epan)
 M1_KE_ref_A2, M2_KE_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, kernel_epan)
 
+# Data epaneknikov kernel (cannot validate), uncorrected second moment
+M1_KEu_ref_A, M2_KEu_ref_A = KBRu_moments_A(X_small, tau_i_range, x_centers, h, kernel_epan)
+M1_KEu_ref_A2, M2_KEu_ref_A2 = KBRu_moments_A2(X_small, tau_i_range, x_centers, h, kernel_epan)
+
 # Run tests
 include("./test_KBR.jl")
+include("./test_KBR_uncorrected.jl")
 
 ## Online Kernel Based Regression, 1D (online methods)
 

@@ -67,17 +67,5 @@
         # for translation = k*period, k>>1
         @test all(M1_u_ref_mod .≈ M1_u_ref_mod_shift)
         @test all(M2_u_ref_mod .≈ M2_u_ref_mod_shift)
-
-        #=
-        # Modulo moments
-        # Algorithms C and "mod" give identical results, for large mod period
-        @test all(M1_ref_C .== M1_ref_mod)
-        @test all(M2_ref_C .== M2_ref_mod)
-
-        # Test for translational invariance,
-        # for translation = k*period, k>>1
-        @test all(M1_ref_mod .≈ M1_ref_mod_shift)
-        @test all(M2_ref_mod .≈ M2_ref_mod_shift)
-        =#
     end
 end

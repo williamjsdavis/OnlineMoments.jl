@@ -16,7 +16,12 @@ update_var_welford(S, x_bar, x_bar_old, x_new) =
     S + (x_new - x_bar_old)*(x_new - x_bar)
 
 # Streaming weighted statistics, textbook formulas
+
 update_wmean(x_bar, w, x_new, w_new) =
     x_bar + (x_new - x_bar)*(w_new/(w + w_new))
+
 update_wvar(s2, x_bar, w, x_new, x_bar_new, w_new) =
     (s2*w + w_new*(x_new - x_bar)*(x_new - x_bar_new))/(w + w_new)
+
+update_wss(ss, w, x_new, w_new) =
+    ss + (x_new^2 - ss)*(w_new/(w + w_new))

@@ -2,7 +2,7 @@
 
 ## Kernel Based Regression, 1D (normal methods), uncorrected
 
-@testset "KBR moments" begin
+@testset "KBR moments, uncorrected" begin
     @testset "Size" begin
         @test size(M1_Ku_ref_A) == (N_tau, N_x)
         @test size(M2_Ku_ref_A) == (N_tau, N_x)

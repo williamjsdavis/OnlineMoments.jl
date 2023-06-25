@@ -68,6 +68,7 @@ include("./test_HBR_uncorrected.jl")
 
 # Original tests
 include("./test_OHBR.jl")
+include("./test_OHBR_uncorrected.jl")
 
 # Welford tests
 include("./test_welford.jl")

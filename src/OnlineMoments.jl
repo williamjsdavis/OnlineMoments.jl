@@ -18,6 +18,9 @@ export KBRu_moments_A, KBRu_moments_A2
 export OHBR_single, OHBR_multiple
 export OKBR_single, OKBR_multiple
 
+# Uncorrected moments
+export OHBRu_single, OHBRu_multiple
+
 # Modulo moments
 export HBR_moments_mod
 export HBRu_moments_mod
@@ -25,6 +28,7 @@ export KBR_moments_mod
 export KBRu_moments_mod
 
 export OHBR_mod_single, OHBR_mod_multiple
+export OHBRu_mod_single, OHBRu_mod_multiple
 export OKBR_mod_single, OKBR_mod_multiple
 
 # Online Welford methods
@@ -49,8 +53,10 @@ include("KBR.jl")
 include("KBR_uncorrected.jl")
 include("OHBR.jl")
 include("OHBR_welford.jl")
+include("OHBR_uncorrected.jl")
 include("OKBR.jl")
 include("XKBR_mod.jl")
+include("XKBR_mod_uncorrected.jl")
 include("autocorr.jl")
 
 end # module

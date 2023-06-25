@@ -1,17 +1,17 @@
-# Online Histogram Based Regression (OHBR)
+# Online Histogram Based Regression (OHBR), uncorrected second moment
 
 ## Single step algorithm, 1D (for testing)
 
-mutable struct OHBR_single{T<:AbstractRange}
+mutable struct OHBRu_single{T<:AbstractRange}
     edges::T
     N::Array{Int64,1}
     M1::Array{Float64,1}
     M2::Array{Float64,1}
     mem::Float64
 end
-function OHBR_single(x_range)
+function OHBRu_single(x_range)
     Nx = length(x_range) - 1
-    OHBR_single(
+    OHBRu_single(
         x_range,
         zeros(Int, Nx),
         zeros(Float64, Nx),
@@ -21,16 +21,15 @@ function OHBR_single(x_range)
 end
 
 # Scaled moments
-M1τ(ohbr::OHBR_single, dt) = ohbr.M1 / dt
-M2τ(ohbr::OHBR_single, dt) = ohbr.M2 / dt
+M1τ(ohbr::OHBRu_single, dt) = ohbr.M1 / dt
+M2τ(ohbr::OHBRu_single, dt) = ohbr.M2 / dt
 
 # Add data to moments
-function add_data!(ohbr::OHBR_single, X_right)
+function add_data!(ohbr::OHBRu_single, X_right)
     X_left = ohbr.mem
     if in_range(ohbr.edges, X_left)
         ΔX = X_right - X_left
         i = find_bin(ohbr.edges, X_left)
-        M1_old = ohbr.M1[i]
 
         setindex!(ohbr.N, ohbr.N[i] + 1, i)
         setindex!(
@@ -40,7 +39,7 @@ function add_data!(ohbr::OHBR_single, X_right)
         )
         setindex!(
             ohbr.M2,
-            update_var(ohbr.M2[i], ohbr.M1[i], M1_old, ΔX, ohbr.N[i]),
+            update_ss(ohbr.M2[i], ΔX, ohbr.N[i]),
             i
         )
     end
@@ -52,7 +51,7 @@ end
 ## Multi step algorithm, 1D
 
 #TODO: generalize tau_i
-mutable struct OHBR_multiple{T<:AbstractRange}
+mutable struct OHBRu_multiple{T<:AbstractRange}
     edges::T
     tau_i::UnitRange{Int}
     N::Array{Int64,2}
@@ -61,12 +60,12 @@ mutable struct OHBR_multiple{T<:AbstractRange}
     mem::Array{Float64,1}
     bin_mem::Array{Int64,1}
 end
-function OHBR_multiple(x_range, tau_i)
+function OHBRu_multiple(x_range, tau_i)
     Nx = length(x_range) - 1
     τ_len = length(tau_i)
     mem = zeros(Float64, τ_len)
     mem .= NaN
-    OHBR_multiple(
+    OHBRu_multiple(
         x_range,
         tau_i,
         zeros(Int, τ_len, Nx),
@@ -78,33 +77,27 @@ function OHBR_multiple(x_range, tau_i)
 end
 
 # Scaled moments
-M1τ(ohbr::OHBR_multiple, dt) = ohbr.M1 ./ (dt*ohbr.tau_i)
-M2τ(ohbr::OHBR_multiple, dt) = ohbr.M2 ./ (dt*ohbr.tau_i)
+M1τ(ohbr::OHBRu_multiple, dt) = ohbr.M1 ./ (dt*ohbr.tau_i)
+M2τ(ohbr::OHBRu_multiple, dt) = ohbr.M2 ./ (dt*ohbr.tau_i)
 
 #TODO: Remove mem_tmp?
 # Add data to moments
-function add_data!(ohbr::OHBR_multiple, X_right)
+function add_data!(ohbr::OHBRu_multiple, X_right)
     for (i_tau, j_bin) in enumerate(ohbr.bin_mem) if j_bin != 0
         X_left = ohbr.mem[i_tau]
         ΔX = X_right - X_left
         mem_tmp = X_left
-        M1_old = ohbr.M1[i_tau,j_bin]
         ohbr.mem[i_tau] = ohbr.M1[i_tau,j_bin] # Old mean
 
         setindex!(ohbr.N, ohbr.N[i_tau,j_bin] + 1, i_tau, j_bin)
         setindex!(
             ohbr.M1,
-            update_mean(M1_old, ΔX, ohbr.N[i_tau,j_bin]),
+            update_mean(ohbr.M1[i_tau,j_bin], ΔX, ohbr.N[i_tau,j_bin]),
             i_tau, j_bin
         )
         setindex!(
             ohbr.M2,
-            update_var(
-                ohbr.M2[i_tau,j_bin],
-                ohbr.M1[i_tau,j_bin],
-                M1_old, ΔX,
-                ohbr.N[i_tau,j_bin]
-            ),
+            update_ss(ohbr.M2[i_tau,j_bin], ΔX, ohbr.N[i_tau,j_bin]),
             i_tau, j_bin
         )
         ohbr.mem[i_tau] = mem_tmp

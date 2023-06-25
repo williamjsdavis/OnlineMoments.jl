@@ -17,6 +17,7 @@ const x_edges = range(0.01, 0.41, length=5)
 X_range = maximum(X_small) - minimum(X_small)
 x_centers = 0.5*(x_edges[1:end-1] + x_edges[2:end])
 N_tau = length(tau_i_range)
+N_lag = N_tau + 1
 N_x = length(x_centers)
 
 # Shifted test data (for modulo moments)
@@ -85,3 +86,10 @@ include("./test_OKBR.jl")
 ## Comparing online algorithms
 
 include("./compare_online.jl")
+
+## Testing autocorrelation
+
+# Offline method
+acf_offline = offline_autocorr(X_small, maximum(tau_i_range))
+
+include("./test_autocorr.jl")

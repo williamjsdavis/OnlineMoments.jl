@@ -3,9 +3,13 @@
 mean(x) = sum(x)/length(x)
 
 # Streaming statistics, textbook formulas
+
 update_mean(x_bar, x_new, n) = x_bar + (x_new - x_bar)/n
+
 update_var(s2, x_bar, x_bar_old, x_new, n) =
     s2 + ((x_new - x_bar)*(x_new - x_bar_old) - s2)/n
+
+update_ss(ss, x_new, n) = ss + (x_new^2 - ss)/n
 
 # Streaming statistics, Welford's online algorithm
 update_var_welford(S, x_bar, x_bar_old, x_new) = 

@@ -80,7 +80,7 @@ function HBRu_moments_C(X, tau_vector, edge_vector)
                     )
                     setindex!(
                         M2,
-                        update_var(M2[j, k], M1[j, k], mem, ΔX, N[j, k]),
+                        update_ss(M2[j, k], ΔX, N[j, k]),
                         j, k
                     )
                 end

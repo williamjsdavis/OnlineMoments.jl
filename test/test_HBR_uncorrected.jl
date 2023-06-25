@@ -8,11 +8,9 @@
         @test size(M2_u_ref_A) == (N_tau, N_x)
         @test size(M1_u_ref_B) == (N_tau, N_x)
         @test size(M2_u_ref_B) == (N_tau, N_x)
+        @test size(M1_u_ref_C) == (N_tau, N_x)
+        @test size(M2_u_ref_C) == (N_tau, N_x)
         #=
-        @test size(M1_ref_B) == (N_tau, N_x)
-        @test size(M2_ref_B) == (N_tau, N_x)
-        @test size(M1_ref_C) == (N_tau, N_x)
-        @test size(M2_ref_C) == (N_tau, N_x)
         @test size(M1_ref_C2) == (N_tau, N_x)
         @test size(M2_ref_C2) == (N_tau, N_x)
         @test size(M1_ref_mod) == (N_tau, N_x)
@@ -33,15 +31,20 @@
         @test all(M1_ref_B .== M1_u_ref_B)
         @test !all(M2_ref_B .== M2_u_ref_B)
 
+        # Algorithms C and uncorrected C give the same first moment,
+        # But different second moment
+        @test all(M1_ref_C .== M1_u_ref_C)
+        @test !all(M2_ref_C .== M2_u_ref_C)
+
         # Algorithms A and B give different results
         @test !all(M1_u_ref_A .≈ M1_u_ref_B)
         @test !all(M2_u_ref_A .≈ M2_u_ref_B)
 
-        #=
         # Algorithms A and C give almost the same results
-        @test all(M1_ref_A .≈ M1_ref_C)
-        @test all(M2_ref_A .≈ M2_ref_C)
+        @test all(M1_u_ref_A .≈ M1_u_ref_C)
+        @test all(M2_u_ref_A .≈ M2_u_ref_C)
 
+        #=
         # Algorithms C and C2 give identical results
         @test all(M1_ref_C .== M1_ref_C2)
         @test all(M2_ref_C .== M2_ref_C2)

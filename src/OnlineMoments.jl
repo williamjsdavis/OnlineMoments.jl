@@ -11,7 +11,7 @@ export HBR_moments_A, HBR_moments_B, HBR_moments_C, HBR_moments_C2
 export KBR_moments_A, KBR_moments_A2
 
 # Uncorrected moments
-export HBRu_moments_A, HBRu_moments_B
+export HBRu_moments_A, HBRu_moments_B, HBRu_moments_C
 
 # Online moments
 export OHBR_single, OHBR_multiple

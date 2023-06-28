@@ -60,22 +60,22 @@ end
 @testset "OKBR (multiple, uncorrected)" begin
     X_stream = stream_data(X_small)
 
-    kbr_u_multiple = OKBRu_multiple(x_centers, tau_i_range, kernel_boxcar, h)
+    okbr_u_multiple = OKBRu_multiple(x_centers, tau_i_range, kernel_boxcar, h)
     @testset "Structs" begin
-        @test kbr_u_multiple.x_eval_points == x_centers
-        @test size(kbr_u_multiple.w) == (N_tau, N_x)
-        @test size(kbr_u_multiple.M1) == (N_tau, N_x)
-        @test size(kbr_u_multiple.M2) == (N_tau, N_x)
-        @test size(kbr_u_multiple.mem) == (N_tau,)
+        @test okbr_u_multiple.x_eval_points == x_centers
+        @test size(okbr_u_multiple.w) == (N_tau, N_x)
+        @test size(okbr_u_multiple.M1) == (N_tau, N_x)
+        @test size(okbr_u_multiple.M2) == (N_tau, N_x)
+        @test size(okbr_u_multiple.mem) == (N_tau,)
     end
 
     for _ in 1:N_data
-        add_data!(kbr_u_multiple, X_stream())
+        add_data!(okbr_u_multiple, X_stream())
     end
     @testset "Moments" begin
         # This streaming algorithm and algorithm A should be almost the same
-        @test all(kbr_u_multiple.M1 .≈ M1_Ku_ref_A)
-        @test all(kbr_u_multiple.M2 .≈ M2_Ku_ref_A)
+        @test all(okbr_u_multiple.M1 .≈ M1_Ku_ref_A)
+        @test all(okbr_u_multiple.M2 .≈ M2_Ku_ref_A)
     end
 end
 

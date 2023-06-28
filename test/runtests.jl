@@ -38,10 +38,15 @@ include("./test_kernels.jl")
 
 # Data, original
 M1_ref_A, M2_ref_A = HBR_moments_A(X_small, tau_i_range, x_edges)
-#M1_ref_A2, M2_ref_A2 = HBR_moments_A2(X_small, tau_i_range, x_edges) # Bad method
 M1_ref_B, M2_ref_B = HBR_moments_B(X_small, tau_i_range, x_edges)
 M1_ref_C, M2_ref_C = HBR_moments_C(X_small, tau_i_range, x_edges)
 M1_ref_C2, M2_ref_C2 = HBR_moments_C2(X_small, tau_i_range, x_edges)
+
+# Data, original, uncorrected second moment
+M1_u_ref_A, M2_u_ref_A = HBRu_moments_A(X_small, tau_i_range, x_edges)
+M1_u_ref_B, M2_u_ref_B = HBRu_moments_B(X_small, tau_i_range, x_edges)
+M1_u_ref_C, M2_u_ref_C = HBRu_moments_C(X_small, tau_i_range, x_edges)
+M1_u_ref_C2, M2_u_ref_C2 = HBRu_moments_C2(X_small, tau_i_range, x_edges)
 
 # Data, original, modulo
 M1_ref_mod, M2_ref_mod =
@@ -49,13 +54,21 @@ M1_ref_mod, M2_ref_mod =
 M1_ref_mod_shift, M2_ref_mod_shift =
     HBR_moments_mod(X_shift, tau_i_range, x_edges, modulo_period_large)
 
+# Data, original, modulo, uncorrected second moment
+M1_u_ref_mod, M2_u_ref_mod =
+    HBRu_moments_mod(X_small, tau_i_range, x_edges, modulo_period_large)
+M1_u_ref_mod_shift, M2_u_ref_mod_shift =
+    HBRu_moments_mod(X_shift, tau_i_range, x_edges, modulo_period_large)
+
 # Run tests
 include("./test_HBR.jl")
+include("./test_HBR_uncorrected.jl")
 
 ## Online Histogram Based Regression, 1D (online methods)
 
 # Original tests
 include("./test_OHBR.jl")
+include("./test_OHBR_uncorrected.jl")
 
 # Welford tests
 include("./test_welford.jl")
@@ -66,22 +79,38 @@ include("./test_welford.jl")
 M1_K_ref_A, M2_K_ref_A = KBR_moments_A(X_small, tau_i_range, x_centers, h, kernel_boxcar)
 M1_K_ref_A2, M2_K_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, kernel_boxcar)
 
+# Data, boxcar kernel (can compare), uncorrected second moment
+M1_Ku_ref_A, M2_Ku_ref_A = KBRu_moments_A(X_small, tau_i_range, x_centers, h, kernel_boxcar)
+M1_Ku_ref_A2, M2_Ku_ref_A2 = KBRu_moments_A2(X_small, tau_i_range, x_centers, h, kernel_boxcar)
+
 # Data, boxcar kernel, modulo
 M1_K_ref_mod, M2_K_ref_mod =
     KBR_moments_mod(X_small, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
 M1_K_ref_mod_shift, M2_K_ref_mod_shift =
     KBR_moments_mod(X_shift, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
 
+# Data, boxcar kernel, modulo, uncorrected second moment
+M1_Ku_ref_mod, M2_Ku_ref_mod =
+    KBRu_moments_mod(X_small, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
+M1_Ku_ref_mod_shift, M2_Ku_ref_mod_shift =
+    KBRu_moments_mod(X_shift, tau_i_range, x_centers, h, kernel_boxcar, modulo_period_large)
+
 # Data epaneknikov kernel (cannot validate)
 M1_KE_ref_A, M2_KE_ref_A = KBR_moments_A(X_small, tau_i_range, x_centers, h, kernel_epan)
 M1_KE_ref_A2, M2_KE_ref_A2 = KBR_moments_A2(X_small, tau_i_range, x_centers, h, kernel_epan)
 
+# Data epaneknikov kernel (cannot validate), uncorrected second moment
+M1_KEu_ref_A, M2_KEu_ref_A = KBRu_moments_A(X_small, tau_i_range, x_centers, h, kernel_epan)
+M1_KEu_ref_A2, M2_KEu_ref_A2 = KBRu_moments_A2(X_small, tau_i_range, x_centers, h, kernel_epan)
+
 # Run tests
 include("./test_KBR.jl")
+include("./test_KBR_uncorrected.jl")
 
 ## Online Kernel Based Regression, 1D (online methods)
 
 include("./test_OKBR.jl")
+include("./test_OKBR_uncorrected.jl")
 
 ## Comparing online algorithms
 

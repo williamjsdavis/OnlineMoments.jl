@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/555072881.svg)](https://zenodo.org/badge/latestdoi/555072881)
+
 # OnlineMoments.jl
 Calculating conditional moments (and variance) from data streams
 `OnlineMoments.jl` is a `Julia` package enabling the esimation of conditional moments and conditional variance from empirical streamed time-series data.

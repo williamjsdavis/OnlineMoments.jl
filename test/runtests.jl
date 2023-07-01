@@ -116,6 +116,23 @@ include("./test_OKBR_uncorrected.jl")
 
 include("./compare_online.jl")
 
+## Testing turbulence moments
+tau1_samples = [4,3,2]
+N_tau1 = length(tau1_samples)
+tau2 = 6
+
+## Histogram methods
+M1_tu_est_A, M2_tu_est_A = HBR_moments_turb_A(X_small, tau1_samples, tau2, x_edges)
+M1_tu_est_C, M2_tu_est_C = HBR_moments_turb_C(X_small, tau1_samples, tau2, x_edges)
+
+## Online Histogram methods
+
+include("./test_OHBR_turbulence.jl")
+
+## Online Kernel methods
+
+include("./test_OKBR_turbulence.jl")
+
 ## Testing autocorrelation
 
 # Offline method

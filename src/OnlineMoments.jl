@@ -37,6 +37,10 @@ export OKBRu_mod_single, OKBRu_mod_multiple
 export OHBR_welford_single
 export M2
 
+# Turbulence moments
+export HBR_moments_turb_A, HBR_moments_turb_C
+export OHBRu_turb_multiple, OKBRu_turb_multiple
+
 # Autocorrelation
 export offline_autocorr, online_autocorr
 export AutoCov
@@ -60,6 +64,7 @@ include("OKBR.jl")
 include("OKBR_uncorrected.jl")
 include("XKBR_mod.jl")
 include("XKBR_mod_uncorrected.jl")
+include("OXBR_turbulence.jl")
 include("autocorr.jl")
 
 end # module

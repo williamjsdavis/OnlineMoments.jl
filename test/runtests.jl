@@ -129,6 +129,10 @@ M1_tu_est_C, M2_tu_est_C = HBR_moments_turb_C(X_small, tau1_samples, tau2, x_edg
 
 include("./test_OHBR_turbulence.jl")
 
+## Online Kernel methods
+
+include("./test_OKBR_turbulence.jl")
+
 ## Testing autocorrelation
 
 # Offline method

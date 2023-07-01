@@ -5,6 +5,7 @@
 @testset "OHBR (multiple, turbulence)" begin
     X_stream = stream_data(X_small)
 
+    # Time-difference sampling
     tau2_range = 1:tau2
     N_tau2 = length(tau2_range)
 

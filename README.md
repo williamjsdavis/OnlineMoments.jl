@@ -37,9 +37,9 @@ $`W_{ij}\big|_{N} = W_{ij}\big|_{N-1} + K_h\left(\mathcal{X}_j - X_{N-i}\right).
 
 The online method, which I call "Online Kernel-Based Regression (OKBR)" scales $`\mathcal{O}(1)`$ in space, compared with Kernel-Based Regression (KBR) which scales as $`\mathcal{O}(N)`$.
 
-<img width="500" alt="Screenshot 2023-07-01 at 3 27 10 PM" src="https://github.com/williamjsdavis/OnlineMoments.jl/assets/38541020/0556d811-17ac-4565-a436-423419371e44">
+![Picture3-comp](https://github.com/williamjsdavis/OnlineMoments.jl/assets/38541020/f38cc506-5010-4227-9910-af3a32d11d96)
 
-See the paper for further details.
+See the paper for further details ([DOI:10.48550/arXiv.2307.00445](https://doi.org/10.48550/arXiv.2307.00445)).
 
 ## Version
 

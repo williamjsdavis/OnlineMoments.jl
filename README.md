@@ -5,7 +5,9 @@ Calculating conditional moments (and variance) from data streams
 `OnlineMoments.jl` is a `Julia` package enabling the esimation of conditional moments and conditional variance from empirical streamed time-series data.
 This package enables the estimation of drift and diffusion functions using both histogram- and kernel-based regression.
 
-This package accompanies the paper: "Reconstruction of Stochastic Dynamics from Large Datasets" Davis, William (accepted)
+This package accompanies the paper: 
+
+Reconstruction of Stochastic Dynamics from Large Datasets, PRE 108, 054110, Davis, William [DOI:10.1103/PhysRevE.108.054110](https://doi.org/10.1103/PhysRevE.108.054110)
 
 ## Background
 
